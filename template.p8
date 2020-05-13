@@ -113,6 +113,14 @@ end
 -- 	end
 -- end
 
+function fadein()
+	fade(15, 0, 1)
+end
+
+function fadeout()
+	fade(0, 15, 1)
+end
+
 function fade(_begin, _final, _durationinsecs)
 	-- classic linear tween implementation
 	-- fade.final = _final
@@ -122,13 +130,15 @@ function fade(_begin, _final, _durationinsecs)
 	fader.projected_time_taken = _durationinsecs * 30
 	-- elementary math of v = d/t
 	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
+	fader.pos = _begin
 	fader.time = 0
 end
 
 function fade_update()
+	-- TODO clean up and write something more optimal
 	if (fader.time < fader.projected_time_taken) then
 		fader.time +=1
-		fader.pos = fader.time * fader.projected_velocity
+		fader.pos += fader.projected_velocity
 	elseif (not fader.triggerperformed) then
 		if (fader.trigger) fade.trigger()
 		fader.triggerperformed = true
@@ -255,7 +265,7 @@ end
 
 function _init()
 	-- gamestate = "gameplay"
-	gamestate = "splash"
+	gamestate = "menu"
 	splash_init()
 	-- gameplay_init()
 
@@ -268,7 +278,8 @@ function _update()
 		menu_update()
 	elseif (gamestate=="gameplay") then
 		gameplay_update()
-
+	elseif (gamestate=="transit") then
+		transit_update()
 	-- elseif (gamestate==state.lost) then
 
 	-- elseif (gamestate==outro) then
@@ -354,25 +365,38 @@ end
 -->8
 -- splash, menu and fade helper methods
 
+function transit(_state)
+	fadeout()
+	timer(1, function()
+		gamestate = _state
+		-- fadein()
+	end)
+end
+
+function transit_update()
+
+end
+
 function splash_init()
 	-- 30 ticks amount to one second
-	timer = 90
+	-- timer = 90
 	cls()
-
-	fade(15, 0, 1)
+	-- timer(4, transit("menu"))
+	-- fadein()
+	-- transit("menu")
 end
 
 function splash_update()
 	
 	-- a controversial condition and could potentially be problematic
-	if (timer == 30) fadeoutto() 
+	-- if (timer == 30) fadeoutto() 
 
-	if (timer>0) then
-		timer-=1
-	else
-		gamestate="menu"
-		menu_init()
-	end
+	-- if (timer>0) then
+	-- 	timer-=1
+	-- else
+	-- 	gamestate="menu"
+	-- 	menu_init()
+	-- end
 end
 
 function splash_draw()
