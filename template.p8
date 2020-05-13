@@ -7,108 +7,49 @@ __lua__
 -- TODO create timer system
 -- TODO create trigger on fade complete 
 
-function _init()
-	gamestate = "splash"
-	splash_init()
+-- component entity system and utility functions
+
+world = {}
+
+function _has(e, ks)
+    for c in all(ks) do
+        if e[c] then 
+            return true
+        end
+    end
+    return false
 end
 
-function _update()
-	if (gamestate=="splash") then
-		splash_update()
-	elseif (gamestate=="menu") then
-		menu_Update()
-	elseif (gamestate==state.gameplay) then
-
-	-- elseif (gamestate==state.lost) then
-
-	-- elseif (gamestate==outro) then
-	end
-
-	fade_update(fader.pos)
+function system(ks, f)
+    return function(system)
+        for e in all(system) do
+            if _has(e, ks) then
+                f(e)
+            end
+        end
+    end
 end
 
-function _draw()
-	if (gamestate=="splash") then
-		splash_draw()
-	elseif (gamestate=="menu") then
-		menu_draw()
-	elseif (gamestate==state.gameplay) then
-
-	-- elseif (gamestate==state.lost) then
-
-	-- elseif (gamestate==outro) then
-		
-	end
-
-	fade_draw(fader.pos)
+function getid(_id)
+    t = {}
+    for e in all(world) do
+        if e.id.class == _id then
+            add(t, e)
+        end
+    end
+    return t
 end
 
--->8
+-- basic AABB collision detection using pos and box components
+function coll(e1, e2)
+    if e1.pos.x < e2.pos.x + e2.box.w and
+        e1.pos.x + e1.box.w > e2.pos.x and
+        e1.pos.y < e2.pos.y + e2.box.h and
+        e1.pos.y + e1.box.h > e2.pos.y then
 
-function gameplay_update()
-
-end
-
-function gameplay_draw()
-
-end
-
--->8
-
-function player_update()
-
-end
-
-function player_draw()
-
-end
-
--->8
-function splash_init()
-	-- 30 ticks amount to one second
-	timer = 90
-	cls()
-
-	fadein()
-end
-
-function splash_update()
-	
-	-- a controversial condition and could potentially be problematic
-	if (timer == 30) fadeoutto() 
-
-	if (timer>0) then
-		timer-=1
-	else
-		gamestate="menu"
-		menu_init()
-	end
-end
-
-function splash_draw()
-	cls()
-	-- draw logo at sprite number 64
-	spr(64, 32, 48, 64, 32)
-
-end
-
-function menu_init()
-	fadein()
-end
-
-function menu_Update()
-	if (btn(5)) then 
-		fadeoutto();
-	end
-end
-
-function menu_draw()
-	cls()
-	print("project wonyun", 16, 16, 8)
-	print("lives left: 47", 16, 32, 7)
-	print("weapon level: 2", 16, 64, 7)
-	print("armor level: 4", 16, 72, 7)
-	print("press x to send another ship", 16, 120, 7)
+        return true
+    end
+    return false
 end
 
 -- original fade library by kometbomb
@@ -142,20 +83,19 @@ fader = {
 }
 
 function fadein()
-	if (fader.state ~= "in") then
-		pal()
-		fader.pos = 15;
-		fader.state = "in"
-	end
+	-- if (fader.state ~= "in") then
+	-- 	pal()
+	-- 	fader.pos = 15;
+	-- 	fader.state = "in"
+	-- end
 end
 
 function fadeoutto(_trigger)
-	end
-	if (fader.state ~= "out") then
-		pal()
-		fader.pos = 0;
-		fader.state = "out"
-	end
+	-- if (fader.state ~= "out") then
+	-- 	pal()
+	-- 	fader.pos = 0;
+	-- 	fader.state = "out"
+	-- end
 end
 
 function fade(_mode, _trigger)
@@ -171,28 +111,28 @@ function fade(_mode, _trigger)
 end
 
 function fade_update()
-	if (fader.state=="in") then
-		if (fader.pos > 0) then 
-			fader.pos -= 1
-		else 
-			fader.state = "idle" 
-		end
-	elseif (fader.state=="out") then
-		if (fader.pos < 15) then
-			fader.pos += 1
-		else 
-			fader.state = "idle" end
-	end
+	-- if (fader.state=="in") then
+	-- 	if (fader.pos > 0) then 
+	-- 		fader.pos -= 1
+	-- 	else 
+	-- 		fader.state = "idle" 
+	-- 	end
+	-- elseif (fader.state=="out") then
+	-- 	if (fader.pos < 15) then
+	-- 		fader.pos += 1
+	-- 	else 
+	-- 		fader.state = "idle" end
+	-- end
 end
 
 function fade_draw(_position)
-	for c=0,15 do
-		if flr(_position+1)>=16 then
-			pal(c,0)
-		else
-			pal(c,fader.table[c+1][flr(_position+1)],1)
-		end
-	end
+	-- for c=0,15 do
+	-- 	if flr(_position+1)>=16 then
+	-- 		pal(c,0)
+	-- 	else
+	-- 		pal(c,fader.table[c+1][flr(_position+1)],1)
+	-- 	end
+	-- end
 end
 
 function fadesettrigger(_trigger)
@@ -202,15 +142,251 @@ function fadesettrigger(_trigger)
 	end
 end
 
+-->8
+-- update system
+
+motionsys = system({"pos", "vel"},
+    function(e) 
+        e.pos.x += e.vel.x
+        e.pos.y += e.vel.y
+    end
+)
+
+timersys = system ({"timer"},
+    function(e)
+        if (e.timer.lifetime > 0) then
+            e.timer.lifetime -= 1
+        else 
+            e.timer.trigger()
+            del(world, e)
+        end
+    end
+)
+
+collisionsys = system({"id"},
+    function(e)
+        if (e.id.class == "player") then
+            enemies = getid("enemy")
+            for ee in all(enemies) do
+                -- if coll()
+            end
+        end
+    end
+)
+
+-->8
+-- draw systems
+
+debugdrawsys = system({"pos", "box"},
+    function(e)
+        rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
+        -- print(e.pos.x + e.pos.y)
+    end
+)
+
+drawsys = system({"id", "pos", "box"},
+    function(e)
+        if (e.id.class == "wonyun") then
+			-- spr(0, e.pos.x, e.pos.y, 16, 16)
+			spr(0, e.pos.x, e.pos.y)
+        end
+    end
+)
+
+-->8
+-- entity constructors
+
+function wonyun(_x , _y, _vx, _vy)
+
+    add(world, {
+        id = {
+            class = "wonyun"
+        },
+        pos = {
+            x=_x,
+            y=_y,
+        },
+        vel = {
+            x=_vx,
+            y=_vy
+        },
+        box = {
+            w = 4,
+            h = 4
+        }
+    })
+end
+
+function timer(_lifetimeinsec, _f) 
+    add(world, {
+        timer = {
+            -- 30 frames take up one second
+            lifetime = _lifetimeinsec * 30,
+            trigger = _f
+        }
+    })
+end
+
+-->8
+-- primary game loops
+
+function _init()
+	-- gamestate = "gameplay"
+	gamestate = "splash"
+	splash_init()
+	-- gameplay_init()
+
+end
+
+function _update()
+	if (gamestate=="splash") then
+		splash_update()
+	elseif (gamestate=="menu") then
+		menu_update()
+	elseif (gamestate=="gameplay") then
+		gameplay_update()
+
+	-- elseif (gamestate==state.lost) then
+
+	-- elseif (gamestate==outro) then
+	end
+
+	fade_update(fader.pos)
+	timersys(world)
+end
+
+function _draw()
+	if (gamestate=="splash") then
+		splash_draw()
+	elseif (gamestate=="menu") then
+		menu_draw()
+	elseif (gamestate=="gameplay") then
+		gameplay_draw()
+	-- elseif (gamestate==state.lost) then
+
+	-- elseif (gamestate==outro) then
+		
+	end
+
+	fade_draw(fader.pos)
+end
+
+
+-- function _init()
+--     wonyun(64, 32, 0, 0.1)
+--     wonyun(32, 32, 0, -1)
+--     wonyun(96, 32, 1, 0)
+
+--     timer(1, function()
+--         wonyun(12, 12, 1, 1)
+--     end)
+-- end
+
+-- function _update()
+--     motionsys(world)
+--     timersys(world)
+-- end
+
+-- function _draw()
+--     cls()
+--     print(count(world))
+--     drawsys(world)
+--     debugdrawsys(world)
+-- end
+
+-->8
+
+function gameplay_init()
+	wonyun(64, 32, 0, 0.1)
+    wonyun(32, 32, 0, -1)
+    wonyun(96, 32, 1, 0)
+
+    timer(1, function()
+        wonyun(12, 12, 1, 1)
+    end)
+end
+
+function gameplay_update()
+	motionsys(world)
+end
+
+function gameplay_draw()
+	cls()
+	print(count(world))
+	drawsys(world)
+	debugdrawsys(world)
+
+end
+
+-->8
+
+function player_update()
+
+end
+
+function player_draw()
+
+end
+
+-->8
+-- splash, menu and fade helper methods
+
+function splash_init()
+	-- 30 ticks amount to one second
+	timer = 90
+	cls()
+
+	fadein()
+end
+
+function splash_update()
+	
+	-- a controversial condition and could potentially be problematic
+	if (timer == 30) fadeoutto() 
+
+	if (timer>0) then
+		timer-=1
+	else
+		gamestate="menu"
+		menu_init()
+	end
+end
+
+function splash_draw()
+	cls()
+	-- draw logo at sprite number 64
+	spr(64, 32, 48, 64, 32)
+
+end
+
+function menu_init()
+	fadein()
+end
+
+function menu_update()
+	if (btn(5)) then 
+		fadeoutto();
+	end
+end
+
+function menu_draw()
+	cls()
+	print("project wonyun", 16, 16, 8)
+	print("lives left: 47", 16, 32, 7)
+	print("weapon level: 2", 16, 64, 7)
+	print("armor level: 4", 16, 72, 7)
+	print("press x to send another ship", 16, 120, 7)
+end
+
 __gfx__
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
