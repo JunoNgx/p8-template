@@ -41,47 +41,31 @@ function _draw()
 end
 -->8
 function splash_init()
-	timer = 90 -- this is two seconds
+	-- 30 ticks amount to one second
+	timer = 90
 	cls()
-	-- fader.fadepos = 15
+
 	fadeIn()
 end
 
 function splash_update()
+	
+	-- a controversial condition and could potentially be problematic
+	if (timer == 30) fadeOut() 
 
-	if (timer == 30) fadeOut()
-
-	-- rect(32, 32, 64, 64)
 	if (timer>0) then
 		timer-=1
 	else
 		gamestate="menu"
 		menu_init()
 	end
-	-- if (fade_step < 15) fade_step +=1
-	-- if (fader.fadepos > 0) fader.fadepos -=1/1
 end
 
 function splash_draw()
 	cls()
-	-- pal()
-	-- print(timer)
-	-- print("manafarm", 32, 48, 7)
-	-- rectfill(0,0,128,128,1)
+	-- draw logo at sprite number 64
 	spr(64, 32, 48, 64, 32)
 
-	-- spr(16, 24, 24, 64, 64)
-	
-	-- fade(fadepos)
-
-
-
-	-- -- fade(1)
-	-- if (timer >0) then
-	-- 	for i=1,15 do
-	-- 		pal(i, i-1)
-	-- 	end
-	-- end
 end
 
 function menu_init()
@@ -108,6 +92,11 @@ function menu_draw()
 	-- 	end
 	-- end
 end
+
+-- original fade library by kometbomb
+-- http://kometbomb.net/pico8/fadegen.html
+-- modified and adapted by Juno Nguyen
+
 
 fader = {
 	pos = 15, -- full black, according to the table
@@ -159,10 +148,6 @@ function fade_update()
 		else fader.state = "idle" end
 	end
 end
-
--- function fader_draw()
--- 	fade(fader.pos)
--- end
 
 function fade_draw(_position)
 	for c=0,15 do
@@ -250,4 +235,4 @@ __gfx__
 77777777777777777777777777777777777777777777777777777777777777770000000000000000000000000000000000000000000000000000000000000000
 77777777777777777777777777777777777777777777777777777777777777770000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-00010000000000000000000000003005035050380503a0503905034050320502d050250501f0501d0501d0501f050210500000025050260502205000000000000000000000000000000000000000000000000000
+00010000000000000000000000003000035000380003a0003900034000320002d000250001f0001d0001d0001f000210000000025000260002200000000000000000000000000000000000000000000000000000
