@@ -101,35 +101,38 @@ function fadeoutto(_trigger)
 	-- end
 end
 
-function fade(_mode, _trigger)
-	assert(_mode, "Fade mode must be in or out")
-	fader.state = _mode
-	fadesettrigger(_trigger)
-	pal()
-	if (_mode == "in") then
-		fader.pos = 15
-	elseif (_mode == "out") then
-		fader.pos = 0
-	end
-end
+-- function fade(_mode, _trigger)
+-- 	assert(_mode, "Fade mode must be in or out")
+-- 	fader.state = _mode
+-- 	fadesettrigger(_trigger)
+-- 	pal()
+-- 	if (_mode == "in") then
+-- 		fader.pos = 15
+-- 	elseif (_mode == "out") then
+-- 		fader.pos = 0
+-- 	end
+-- end
 
-function fadeTween(_begin, _final, _durationinsecs)
-	pal()
-	-- duration is in seconds
-	fade.time = _durationinsecs * 30
-	-- elementary math
-	_distance = _final - _begin
-	fader.pos = t * (_distance/_final)
-
+function fade(_begin, _final, _durationinsecs)
+	-- classic linear tween implementation
+	-- fade.final = _final
+	-- fade.distance = _begin - final
+	-- fader.pos = _begin
+	-- 30 ticks equal one second
+	fader.projected_time_taken = _durationinsecs * 30
+	-- elementary math of v = d/t
+	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
+	fader.time = 0
 end
 
 function fade_update()
-	if (fade.time>0) then
-		fade.time -=1
-	elseif (not fade.triggerperformed) {
-		if (fade.trigger) fade.trigger()
-		fade.triggerperformed = true
-	}
+	if (fader.time < fader.projected_time_taken) then
+		fader.time +=1
+		fader.pos = fader.time * fader.projected_velocity
+	elseif (not fader.triggerperformed) then
+		if (fader.trigger) fade.trigger()
+		fader.triggerperformed = true
+	end
 	-- if (fader.state=="in") then
 	-- 	if (fader.pos > 0) then 
 	-- 		fader.pos -= 1
@@ -145,13 +148,14 @@ function fade_update()
 end
 
 function fade_draw(_position)
-	-- for c=0,15 do
-	-- 	if flr(_position+1)>=16 then
-	-- 		pal(c,0)
-	-- 	else
-	-- 		pal(c,fader.table[c+1][flr(_position+1)],1)
-	-- 	end
-	-- end
+	print(fader.pos)
+	for c=0,15 do
+		if flr(_position+1)>=16 then
+			pal(c,0)
+		else
+			pal(c,fader.table[c+1][flr(_position+1)],1)
+		end
+	end
 end
 
 function fadesettrigger(_trigger)
@@ -270,7 +274,7 @@ function _update()
 	-- elseif (gamestate==outro) then
 	end
 
-	fade_update(fader.pos)
+	fade_update()
 	timersys(world)
 end
 
@@ -355,7 +359,7 @@ function splash_init()
 	timer = 90
 	cls()
 
-	fadein()
+	fade(15, 0, 1)
 end
 
 function splash_update()
@@ -375,7 +379,6 @@ function splash_draw()
 	cls()
 	-- draw logo at sprite number 64
 	spr(64, 32, 48, 64, 32)
-
 end
 
 function menu_init()
