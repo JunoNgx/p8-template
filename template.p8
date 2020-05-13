@@ -58,11 +58,14 @@ end
 
 
 fader = {
+	time = 0,
 	pos = 15, -- full black, according to the table
 	state = "idle",
 	triggerperformed = true,
 	trigger = nil,
 	table= {
+		-- position 15 is all black
+		-- position 0 is all bright colors
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
 		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
@@ -110,7 +113,23 @@ function fade(_mode, _trigger)
 	end
 end
 
+function fadeTween(_begin, _final, _durationinsecs)
+	pal()
+	-- duration is in seconds
+	fade.time = _durationinsecs * 30
+	-- elementary math
+	_distance = _final - _begin
+	fader.pos = t * (_distance/_final)
+
+end
+
 function fade_update()
+	if (fade.time>0) then
+		fade.time -=1
+	elseif (not fade.triggerperformed) {
+		if (fade.trigger) fade.trigger()
+		fade.triggerperformed = true
+	}
 	-- if (fader.state=="in") then
 	-- 	if (fader.pos > 0) then 
 	-- 		fader.pos -= 1
