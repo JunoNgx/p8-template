@@ -4,6 +4,9 @@ __lua__
 -- pico-8 template
 -- by Juno Nguyen
 
+-- TODO create timer system
+-- TODO create trigger on fade complete 
+
 function _init()
 	gamestate = "splash"
 	splash_init()
@@ -14,7 +17,7 @@ function _update()
 		splash_update()
 	elseif (gamestate=="menu") then
 		menu_Update()
-	-- elseif (gamestate==state.gameplay) then
+	elseif (gamestate==state.gameplay) then
 
 	-- elseif (gamestate==state.lost) then
 
@@ -29,7 +32,7 @@ function _draw()
 		splash_draw()
 	elseif (gamestate=="menu") then
 		menu_draw()
-	-- elseif (gamestate==state.gameplay) then
+	elseif (gamestate==state.gameplay) then
 
 	-- elseif (gamestate==state.lost) then
 
@@ -39,19 +42,40 @@ function _draw()
 
 	fade_draw(fader.pos)
 end
+
+-->8
+
+function gameplay_update()
+
+end
+
+function gameplay_draw()
+
+end
+
+-->8
+
+function player_update()
+
+end
+
+function player_draw()
+
+end
+
 -->8
 function splash_init()
 	-- 30 ticks amount to one second
 	timer = 90
 	cls()
 
-	fadeIn()
+	fadein()
 end
 
 function splash_update()
 	
 	-- a controversial condition and could potentially be problematic
-	if (timer == 30) fadeOut() 
+	if (timer == 30) fadeoutto() 
 
 	if (timer>0) then
 		timer-=1
@@ -69,11 +93,13 @@ function splash_draw()
 end
 
 function menu_init()
-	fadeIn()
+	fadein()
 end
 
 function menu_Update()
-	
+	if (btn(5)) then 
+		fadeoutto();
+	end
 end
 
 function menu_draw()
@@ -83,14 +109,6 @@ function menu_draw()
 	print("weapon level: 2", 16, 64, 7)
 	print("armor level: 4", 16, 72, 7)
 	print("press x to send another ship", 16, 120, 7)
-
-	-- for i=0, 4 do
-	-- 	for j=0, 10 do
-	-- 		local x1 = 96+i*8
-	-- 		local y1 = 12+j*8
-	-- 		rectfill(x1, y1, x1+1, y1+1, 12)
-	-- 	end
-	-- end
 end
 
 -- original fade library by kometbomb
@@ -101,6 +119,8 @@ end
 fader = {
 	pos = 15, -- full black, according to the table
 	state = "idle",
+	triggerperformed = true,
+	trigger = nil,
 	table= {
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
@@ -121,7 +141,7 @@ fader = {
 	}
 }
 
-function fadeIn()
+function fadein()
 	if (fader.state ~= "in") then
 		pal()
 		fader.pos = 15;
@@ -129,7 +149,8 @@ function fadeIn()
 	end
 end
 
-function fadeOut()
+function fadeoutto(_trigger)
+	end
 	if (fader.state ~= "out") then
 		pal()
 		fader.pos = 0;
@@ -137,15 +158,30 @@ function fadeOut()
 	end
 end
 
+function fade(_mode, _trigger)
+	assert(_mode, "Fade mode must be in or out")
+	fader.state = _mode
+	fadesettrigger(_trigger)
+	pal()
+	if (_mode == "in") then
+		fader.pos = 15
+	elseif (_mode == "out") then
+		fader.pos = 0
+	end
+end
+
 function fade_update()
 	if (fader.state=="in") then
 		if (fader.pos > 0) then 
 			fader.pos -= 1
-		else fader.state = "idle" end
+		else 
+			fader.state = "idle" 
+		end
 	elseif (fader.state=="out") then
 		if (fader.pos < 15) then
 			fader.pos += 1
-		else fader.state = "idle" end
+		else 
+			fader.state = "idle" end
 	end
 end
 
@@ -159,14 +195,11 @@ function fade_draw(_position)
 	end
 end
 
--->8
-
-function player_update()
-
-end
-
-function player_draw()
-
+function fadesettrigger(_trigger)
+	if _trigger then
+		fader.trigger = _trigger
+		fader.triggerperformed = false
+	end
 end
 
 __gfx__
