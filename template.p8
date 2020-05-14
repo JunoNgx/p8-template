@@ -4,7 +4,6 @@ __lua__
 -- pico-8 template
 -- by Juno Nguyen
 
-
 -- fade library by kometbomb
 -- http://kometbomb.net/pico8/fadegen.html
 -- entity component system by selfsame
@@ -13,9 +12,6 @@ __lua__
 -- https://github.com/ojdon/pico8-boilerplate
 
 -- component entity system and utility functions
-
-world = {}
-
 function _has(e, ks)
     for c in all(ks) do
         if e[c] then 
@@ -126,13 +122,6 @@ function fade_draw(_position)
 		else
 			pal(c,fader.table[c+1][flr(_position+1)],1)
 		end
-	end
-end
-
-function fadesettrigger(_trigger)
-	if _trigger then
-		fader.trigger = _trigger
-		fader.triggerperformed = false
 	end
 end
 
