@@ -181,11 +181,132 @@ end
 -- primary game loops
 -- gamestate = "transit"
 
+gamestate = {}
+
+
+-- init = {
+-- 	name = ""
+-- 	splash = function()
+		
+-- 	end,
+-- 	menu = function()
+		
+-- 	end,
+	
+-- 	gameplay = function()
+
+-- 	end,
+
+-- 	transit = function()
+
+-- 	end
+-- }
+
+-- 1 splash
+-- 2 menu
+-- 3 gameplay
+-- 4 transit
+
+splashstate = {
+	name = "splash",
+	init = function()
+
+	end,
+	update = function()
+		if (btn(5)) then 
+			-- gamestate = menustate
+			transit(menustate)
+		end
+	end,
+	draw = function()
+		cls()
+		-- draw logo at sprite number 64
+		spr(64, 32, 48, 64, 32)
+	end
+}
+
+menustate = {
+	name = "menu",
+	init = function()
+		
+	end,
+	update = function()
+		if (btn(5)) then 
+			transit(gameplaystate)
+		end
+	end,
+	draw = function()
+		cls()
+		print("project wonyun", 16, 16, 8)
+		print("lives left: 47", 16, 32, 7)
+		print("weapon level: 2", 16, 64, 7)
+		print("armor level: 4", 16, 72, 7)
+		print("press x to send another ship", 16, 120, 7)
+	end
+}
+
+gameplaystate = {
+	name = "menu",
+	init = function()
+		gameplay_init()
+	end,
+	update = function()
+		gameplay_update()
+		if (btn(5)) then 
+			transit(menustate)
+		end
+	end,
+	draw = function()
+		gameplay_draw()
+	end
+}
+
+transitstate = {
+	name = "transit",
+	init = function()
+
+	end,
+	update = function()
+		if (transitor.timer > 0) then
+			transitor.timer -=1
+		else 
+			gamestate = transitor.destination_state
+			gamestate.init()
+			-- fadeout()
+		end
+	end,
+	draw = function()
+		-- gameplay_draw()
+	end
+}
+
+function transit(_state)
+	-- fadeout()
+	-- timer(1, function()
+	-- 	gamestate = _state
+	-- 	-- fadein()
+	-- end)
+	-- gamestate = 4
+	gamestate = transitstate
+	transitor.destination_state = _state
+	transitor.timer = 30
+end
+
+-- function transit_update()
+-- 	if (transitor.timer > 0) then
+-- 		transitor.timer -=1
+-- 	else 
+-- 		gamestate = transitor.destination_state
+-- 		init[transitor.destination_state]()
+-- 		-- fadeout()
+-- 	end
+-- end
+
 function _init()
 	-- gamestate = "gameplay"
 	-- gamestate = "menu"
-	gamestate = "splash"
-	splash_init()
+	gamestate = splashstate
+	gamestate.init()
 	-- gameplay_init()
 	-- transit("splash")
 	-- gamestate = "transit"
@@ -195,127 +316,106 @@ function _init()
 end
 
 function _update()
-	if (gamestate=="splash") then
-		splash_update()
-	elseif (gamestate=="menu") then
-		menu_update()
-	elseif (gamestate=="gameplay") then
-		gameplay_update()
-	elseif (gamestate=="transit") then
-		transit_update()
-	-- elseif (gamestate==state.lost) then
+	gamestate.update()
+	-- if (gamestate==1) then 
+		
+	-- elseif (gamestate==2) then
+		-- 	if (btn(5)) then 
+	-- 		transit(3)
+	-- 	end
+	-- elseif (gamestate==3) then
+		-- 	gameplay_update()
+		-- elseif (gamestate==4) then
+	-- 	transit_update()
+	-- -- elseif (gamestate==state.lost) then
+		
+		-- -- elseif (gamestate==outro) then
+	-- end
 
-	-- elseif (gamestate==outro) then
-	end
-
-	-- fade_update()
-	-- timersys(world)
+	-- -- fade_update()
+	-- -- timersys(world)
 end
 
 function _draw()
-	if (gamestate=="splash") then
-		splash_draw()
-	elseif (gamestate=="menu") then
-		menu_draw()
-	elseif (gamestate=="gameplay") then
-		gameplay_draw()
-	elseif (gamestate=="transit") then
-		-- fade_draw()
-	end
+	gamestate.draw()
+	-- if (gamestate==1) then
+	-- 	-- splash_draw()
+	-- 	cls()
+	-- 	-- draw logo at sprite number 64
+	-- 	spr(64, 32, 48, 64, 32)
+	-- elseif (gamestate==2) then
+		-- 	-- menu_draw()
+	-- 	cls()
+	-- 	print("project wonyun", 16, 16, 8)
+	-- 	print("lives left: 47", 16, 32, 7)
+	-- 	print("weapon level: 2", 16, 64, 7)
+	-- 	print("armor level: 4", 16, 72, 7)
+	-- 	print("press x to send another ship", 16, 120, 7)
+	-- elseif (gamestate==3) then
+	-- 	gameplay_draw()
+	-- elseif (gamestate==4) then
+		-- 	-- fade_draw()
+		-- end
 
 	-- cls()
-	print(gamestate)
+	print(gamestate.name)
 	-- fade_draw(fader.pos)
 end
 
 -->8
 -- splash, menu and fade helper methods
 
-init = {
-	-- "splash" = function()
-		
-	-- end,
-	-- "menu" = function()
-
-	-- end,
-
-	-- "gameplay" = function()
-
-	-- end,
-
-	-- "transit" = function()
-
-	-- end
-}
-
 transitor = {
 	destination_state,
 	timer = 0,
 }
 
-function transit(_state)
-	-- fadeout()
-	-- timer(1, function()
-	-- 	gamestate = _state
-	-- 	-- fadein()
-	-- end)
-end
 
-function transit_update()
-	if (transitor.timer > 0) then
-		transitor.timer -=1
-	else 
-		gamestate = transitor.destination_state
-		fadeout()
-	end
-end
+-- function splash_init()
+-- 	transit(2)
+-- 	-- 30 ticks amount to one second
+-- 	-- timer = 90
+-- 	-- cls()
+-- 	-- timer(4, transit("menu"))
+-- 	-- fadein()
+-- 	-- transit("menu")
+-- end
 
-function splash_init()
-	-- 30 ticks amount to one second
-	timer = 90
-	-- cls()
-	-- timer(4, transit("menu"))
-	-- fadein()
-	-- transit("menu")
-end
-
-function splash_update()
+-- function splash_update()
 	
-	-- a controversial condition and could potentially be problematic
-	-- if (timer == 30) fadeoutto() 
+-- 	-- a controversial condition and could potentially be problematic
+-- 	-- if (timer == 30) fadeoutto() 
 
-	if (timer>0) then
-		timer-=1
-	else
-		gamestate="menu"
-		menu_init()
-	end
-end
+-- 	-- if (timer>0) then
+-- 	-- 	timer-=1
+-- 	-- else
+-- 	-- 	gamestate="menu"
+-- 	-- 	menu_init()
+-- 	-- end
+-- end
 
-function splash_draw()
-	cls()
-	-- draw logo at sprite number 64
-	spr(64, 32, 48, 64, 32)
-end
+-- function splash_draw()
+-- 	cls()
+-- 	-- draw logo at sprite number 64
+-- 	spr(64, 32, 48, 64, 32)
+-- end
 
 function menu_init()
 	-- fadein()
 end
 
-function menu_update()
-	if (btn(5)) then 
-		fadeoutto();
-	end
-end
+-- function menu_update()
+	
+-- end
 
-function menu_draw()
-	cls()
-	print("project wonyun", 16, 16, 8)
-	print("lives left: 47", 16, 32, 7)
-	print("weapon level: 2", 16, 64, 7)
-	print("armor level: 4", 16, 72, 7)
-	print("press x to send another ship", 16, 120, 7)
-end
+-- function menu_draw()
+-- 	cls()
+-- 	print("project wonyun", 16, 16, 8)
+-- 	print("lives left: 47", 16, 32, 7)
+-- 	print("weapon level: 2", 16, 64, 7)
+-- 	print("armor level: 4", 16, 72, 7)
+-- 	print("press x to send another ship", 16, 120, 7)
+-- end
 
 -->8
 -- update system
