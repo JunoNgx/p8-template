@@ -155,7 +155,6 @@ splashstate = {
 		end
 	end,
 	draw = function()
-		cls()
 		-- draw logo at sprite number 64
 		spr(64, 32, 48, 64, 32)
 	end
@@ -172,7 +171,6 @@ menustate = {
 		end
 	end,
 	draw = function()
-		cls()
 		print("project wonyun", 16, 16, 8)
 		print("lives left: 47", 16, 32, 7)
 		print("weapon level: 2", 16, 64, 7)
@@ -202,7 +200,6 @@ gameplaystate = {
 		end
 	end,
 	draw = function()
-		cls()
 		print(count(world))
 		drawsys(world)
 		debugdrawsys(world)
@@ -251,15 +248,14 @@ function _update()
 end
 
 function _draw()
-	-- cls() to be ran in invididual states except for transit
 	-- due to interference with fading
+	if (gamestate.name ~= "transit") cls()
 
 	gamestate.draw()
 	fade_draw(fader.pos)
 end
 
 -->8
-
 -- update system
 
 motionsys = system({"pos", "vel"},
