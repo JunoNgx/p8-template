@@ -147,10 +147,12 @@ splashstate = {
 	name = "splash",
 	init = function()
 		fadein()
+		splashtimer =45
 	end,
 	update = function()
-		if (btn(5)) then 
-			-- gamestate = menustate
+		if (splashtimer > 0) then
+			splashtimer -= 1
+		else
 			transit(menustate)
 		end
 	end,
