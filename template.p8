@@ -57,125 +57,89 @@ end
 -- modified and adapted by Juno Nguyen
 
 
--- fader = {
--- 	time = 0,
--- 	pos = 15, -- full black, according to the table
--- 	projected_time_taken = 0,
--- 	projected_velocity = 0,
--- 	state = "idle",
--- 	triggerperformed = true,
--- 	trigger = nil,
--- 	table= {
--- 		-- position 15 is all black
--- 		-- position 0 is all bright colors
--- 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
--- 		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
--- 		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
--- 		{3,3,3,3,3,3,1,1,1,0,0,0,0,0,0},
--- 		{4,4,4,2,2,2,2,2,1,1,0,0,0,0,0},
--- 		{5,5,5,5,5,1,1,1,1,1,0,0,0,0,0},
--- 		{6,6,13,13,13,13,5,5,5,5,1,1,1,0,0},
--- 		{7,6,6,6,6,13,13,13,5,5,5,1,1,0,0},
--- 		{8,8,8,8,2,2,2,2,2,2,0,0,0,0,0},
--- 		{9,9,9,4,4,4,4,4,4,5,5,0,0,0,0},
--- 		{10,10,9,9,9,4,4,4,5,5,5,5,0,0,0},
--- 		{11,11,11,3,3,3,3,3,3,3,0,0,0,0,0},
--- 		{12,12,12,12,12,3,3,1,1,1,1,1,1,0,0},
--- 		{13,13,13,5,5,5,5,1,1,1,1,1,0,0,0},
--- 		{14,14,14,13,4,4,2,2,2,2,2,1,1,0,0},
--- 		{15,15,6,13,13,13,5,5,5,5,5,1,1,0,0}
--- 	}
--- }
+fader = {
+	time = 0,
+	pos = 0, -- full black, according to the table
+	projected_time_taken = 0,
+	projected_velocity = 0,
+	status = "idle",
+	triggerperformed = true,
+	trigger = nil,
+	table= {
+		-- position 15 is all black
+		-- position 0 is all bright colors
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
+		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
+		{3,3,3,3,3,3,1,1,1,0,0,0,0,0,0},
+		{4,4,4,2,2,2,2,2,1,1,0,0,0,0,0},
+		{5,5,5,5,5,1,1,1,1,1,0,0,0,0,0},
+		{6,6,13,13,13,13,5,5,5,5,1,1,1,0,0},
+		{7,6,6,6,6,13,13,13,5,5,5,1,1,0,0},
+		{8,8,8,8,2,2,2,2,2,2,0,0,0,0,0},
+		{9,9,9,4,4,4,4,4,4,5,5,0,0,0,0},
+		{10,10,9,9,9,4,4,4,5,5,5,5,0,0,0},
+		{11,11,11,3,3,3,3,3,3,3,0,0,0,0,0},
+		{12,12,12,12,12,3,3,1,1,1,1,1,1,0,0},
+		{13,13,13,5,5,5,5,1,1,1,1,1,0,0,0},
+		{14,14,14,13,4,4,2,2,2,2,2,1,1,0,0},
+		{15,15,6,13,13,13,5,5,5,5,5,1,1,0,0}
+	}
+}
 
--- function fadein()
--- 	-- if (fader.state ~= "in") then
--- 	-- 	pal()
--- 	-- 	fader.pos = 15;
--- 	-- 	fader.state = "in"
--- 	-- end
--- end
+function fadein()
+	-- printh("fadein", "template.log")
+	fade(15, 0, 1)
+end
 
--- function fadeoutto(_trigger)
--- 	-- if (fader.state ~= "out") then
--- 	-- 	pal()
--- 	-- 	fader.pos = 0;
--- 	-- 	fader.state = "out"
--- 	-- end
--- end
+function fadeout()
+	fade(0, 15, 1)
+end
 
--- -- function fade(_mode, _trigger)
--- -- 	assert(_mode, "Fade mode must be in or out")
--- -- 	fader.state = _mode
--- -- 	fadesettrigger(_trigger)
--- -- 	pal()
--- -- 	if (_mode == "in") then
--- -- 		fader.pos = 15
--- -- 	elseif (_mode == "out") then
--- -- 		fader.pos = 0
--- -- 	end
--- -- end
+function fade(_begin, _final, _durationinsecs)
+	-- if (fader.status == "idle")
+		-- 30 ticks equal one second
+		fader.projected_time_taken = _durationinsecs * 30
+		-- elementary math of v = d/t
+		fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
+		fader.pos = _begin
+		fader.time = 0
+		fader.status = "working"
+	-- end
+end
 
--- function fadein()
--- 	fade(15, 0, 1)
--- end
+function fade_update()
+	-- TODO clean up and write something more optimal
+	if (fader.time < fader.projected_time_taken) then
+		fader.time +=1
+		fader.pos += fader.projected_velocity
+	else 
+		pal()
+	end
+end
 
--- function fadeout()
--- 	fade(0, 15, 1)
--- end
+function fade_draw(_position)
+	-- for debug
+	-- print(fader.pos)
+	-- print(fader.projected_time_taken)
+	-- print(fader.projected_velocity)
+	-- print(fader.time)
+	pal()
+	for c=0,15 do
+		if flr(_position+1)>=16 then
+			pal(c,0)
+		else
+			pal(c,fader.table[c+1][flr(_position+1)],1)
+		end
+	end
+end
 
--- function fade(_begin, _final, _durationinsecs)
--- 	-- classic linear tween implementation
--- 	-- fade.final = _final
--- 	-- fade.distance = _begin - final
--- 	-- fader.pos = _begin
--- 	-- 30 ticks equal one second
--- 	fader.projected_time_taken = _durationinsecs * 30
--- 	-- elementary math of v = d/t
--- 	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
--- 	fader.pos = _begin
--- 	fader.time = 0
--- end
-
--- function fade_update()
--- 	-- TODO clean up and write something more optimal
--- 	if (fader.time < fader.projected_time_taken) then
--- 		fader.time +=1
--- 		fader.pos += fader.projected_velocity
--- 	elseif (not fader.triggerperformed) then
--- 		if (fader.trigger) fade.trigger()
--- 		fader.triggerperformed = true
--- 	end
--- 	-- if (fader.state=="in") then
--- 	-- 	if (fader.pos > 0) then 
--- 	-- 		fader.pos -= 1
--- 	-- 	else 
--- 	-- 		fader.state = "idle" 
--- 	-- 	end
--- 	-- elseif (fader.state=="out") then
--- 	-- 	if (fader.pos < 15) then
--- 	-- 		fader.pos += 1
--- 	-- 	else 
--- 	-- 		fader.state = "idle" end
--- 	-- end
--- end
-
--- function fade_draw(_position)
--- 	print(fader.pos)
--- 	for c=0,15 do
--- 		if flr(_position+1)>=16 then
--- 			pal(c,0)
--- 		else
--- 			pal(c,fader.table[c+1][flr(_position+1)],1)
--- 		end
--- 	end
--- end
-
--- function fadesettrigger(_trigger)
--- 	if _trigger then
--- 		fader.trigger = _trigger
--- 		fader.triggerperformed = false
--- 	end
--- end
+function fadesettrigger(_trigger)
+	if _trigger then
+		fader.trigger = _trigger
+		fader.triggerperformed = false
+	end
+end
 
 -->8
 -- primary game loops
@@ -210,7 +174,7 @@ gamestate = {}
 splashstate = {
 	name = "splash",
 	init = function()
-
+		fadein()
 	end,
 	update = function()
 		if (btn(5)) then 
@@ -228,7 +192,7 @@ splashstate = {
 menustate = {
 	name = "menu",
 	init = function()
-		
+		fadein()
 	end,
 	update = function()
 		if (btn(5)) then 
@@ -242,12 +206,15 @@ menustate = {
 		print("weapon level: 2", 16, 64, 7)
 		print("armor level: 4", 16, 72, 7)
 		print("press x to send another ship", 16, 120, 7)
+		spr(1, 12, 12)
 	end
 }
 
 gameplaystate = {
-	name = "menu",
+	name = "gameplay",
 	init = function()
+		fadein()
+		world = {}
 		gameplay_init()
 	end,
 	update = function()
@@ -270,9 +237,9 @@ transitstate = {
 		if (transitor.timer > 0) then
 			transitor.timer -=1
 		else 
+			-- fadein()
 			gamestate = transitor.destination_state
 			gamestate.init()
-			-- fadeout()
 		end
 	end,
 	draw = function()
@@ -287,8 +254,10 @@ function transit(_state)
 	-- 	-- fadein()
 	-- end)
 	-- gamestate = 4
+	fadeout()
 	gamestate = transitstate
 	transitor.destination_state = _state
+	-- delay till transit, to wait for fadeout
 	transitor.timer = 30
 end
 
@@ -307,6 +276,7 @@ function _init()
 	-- gamestate = "menu"
 	gamestate = splashstate
 	gamestate.init()
+	-- fadein()
 	-- gameplay_init()
 	-- transit("splash")
 	-- gamestate = "transit"
@@ -332,11 +302,12 @@ function _update()
 		-- -- elseif (gamestate==outro) then
 	-- end
 
-	-- -- fade_update()
+	fade_update()
 	-- -- timersys(world)
 end
 
 function _draw()
+	-- pal()
 	gamestate.draw()
 	-- if (gamestate==1) then
 	-- 	-- splash_draw()
@@ -358,8 +329,9 @@ function _draw()
 		-- end
 
 	-- cls()
-	print(gamestate.name)
-	-- fade_draw(fader.pos)
+	-- print(gamestate.name)
+	fade_draw(fader.pos)
+	-- print(gamestate.name)
 end
 
 -->8
@@ -400,9 +372,9 @@ transitor = {
 -- 	spr(64, 32, 48, 64, 32)
 -- end
 
-function menu_init()
-	-- fadein()
-end
+-- function menu_init()
+-- 	-- fadein()
+-- end
 
 -- function menu_update()
 	
@@ -561,14 +533,14 @@ end
 
 
 __gfx__
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110112222330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110122120330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110122123030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110445566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110450566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011111108899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011111108899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111110cc9daeeb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
