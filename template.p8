@@ -57,122 +57,264 @@ end
 -- modified and adapted by Juno Nguyen
 
 
-fader = {
-	time = 0,
-	pos = 15, -- full black, according to the table
-	state = "idle",
-	triggerperformed = true,
-	trigger = nil,
-	table= {
-		-- position 15 is all black
-		-- position 0 is all bright colors
-		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
-		{3,3,3,3,3,3,1,1,1,0,0,0,0,0,0},
-		{4,4,4,2,2,2,2,2,1,1,0,0,0,0,0},
-		{5,5,5,5,5,1,1,1,1,1,0,0,0,0,0},
-		{6,6,13,13,13,13,5,5,5,5,1,1,1,0,0},
-		{7,6,6,6,6,13,13,13,5,5,5,1,1,0,0},
-		{8,8,8,8,2,2,2,2,2,2,0,0,0,0,0},
-		{9,9,9,4,4,4,4,4,4,5,5,0,0,0,0},
-		{10,10,9,9,9,4,4,4,5,5,5,5,0,0,0},
-		{11,11,11,3,3,3,3,3,3,3,0,0,0,0,0},
-		{12,12,12,12,12,3,3,1,1,1,1,1,1,0,0},
-		{13,13,13,5,5,5,5,1,1,1,1,1,0,0,0},
-		{14,14,14,13,4,4,2,2,2,2,2,1,1,0,0},
-		{15,15,6,13,13,13,5,5,5,5,5,1,1,0,0}
-	}
-}
+-- fader = {
+-- 	time = 0,
+-- 	pos = 15, -- full black, according to the table
+-- 	projected_time_taken = 0,
+-- 	projected_velocity = 0,
+-- 	state = "idle",
+-- 	triggerperformed = true,
+-- 	trigger = nil,
+-- 	table= {
+-- 		-- position 15 is all black
+-- 		-- position 0 is all bright colors
+-- 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+-- 		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
+-- 		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
+-- 		{3,3,3,3,3,3,1,1,1,0,0,0,0,0,0},
+-- 		{4,4,4,2,2,2,2,2,1,1,0,0,0,0,0},
+-- 		{5,5,5,5,5,1,1,1,1,1,0,0,0,0,0},
+-- 		{6,6,13,13,13,13,5,5,5,5,1,1,1,0,0},
+-- 		{7,6,6,6,6,13,13,13,5,5,5,1,1,0,0},
+-- 		{8,8,8,8,2,2,2,2,2,2,0,0,0,0,0},
+-- 		{9,9,9,4,4,4,4,4,4,5,5,0,0,0,0},
+-- 		{10,10,9,9,9,4,4,4,5,5,5,5,0,0,0},
+-- 		{11,11,11,3,3,3,3,3,3,3,0,0,0,0,0},
+-- 		{12,12,12,12,12,3,3,1,1,1,1,1,1,0,0},
+-- 		{13,13,13,5,5,5,5,1,1,1,1,1,0,0,0},
+-- 		{14,14,14,13,4,4,2,2,2,2,2,1,1,0,0},
+-- 		{15,15,6,13,13,13,5,5,5,5,5,1,1,0,0}
+-- 	}
+-- }
 
-function fadein()
-	-- if (fader.state ~= "in") then
-	-- 	pal()
-	-- 	fader.pos = 15;
-	-- 	fader.state = "in"
-	-- end
-end
+-- function fadein()
+-- 	-- if (fader.state ~= "in") then
+-- 	-- 	pal()
+-- 	-- 	fader.pos = 15;
+-- 	-- 	fader.state = "in"
+-- 	-- end
+-- end
 
-function fadeoutto(_trigger)
-	-- if (fader.state ~= "out") then
-	-- 	pal()
-	-- 	fader.pos = 0;
-	-- 	fader.state = "out"
-	-- end
-end
+-- function fadeoutto(_trigger)
+-- 	-- if (fader.state ~= "out") then
+-- 	-- 	pal()
+-- 	-- 	fader.pos = 0;
+-- 	-- 	fader.state = "out"
+-- 	-- end
+-- end
 
--- function fade(_mode, _trigger)
--- 	assert(_mode, "Fade mode must be in or out")
--- 	fader.state = _mode
--- 	fadesettrigger(_trigger)
--- 	pal()
--- 	if (_mode == "in") then
--- 		fader.pos = 15
--- 	elseif (_mode == "out") then
--- 		fader.pos = 0
+-- -- function fade(_mode, _trigger)
+-- -- 	assert(_mode, "Fade mode must be in or out")
+-- -- 	fader.state = _mode
+-- -- 	fadesettrigger(_trigger)
+-- -- 	pal()
+-- -- 	if (_mode == "in") then
+-- -- 		fader.pos = 15
+-- -- 	elseif (_mode == "out") then
+-- -- 		fader.pos = 0
+-- -- 	end
+-- -- end
+
+-- function fadein()
+-- 	fade(15, 0, 1)
+-- end
+
+-- function fadeout()
+-- 	fade(0, 15, 1)
+-- end
+
+-- function fade(_begin, _final, _durationinsecs)
+-- 	-- classic linear tween implementation
+-- 	-- fade.final = _final
+-- 	-- fade.distance = _begin - final
+-- 	-- fader.pos = _begin
+-- 	-- 30 ticks equal one second
+-- 	fader.projected_time_taken = _durationinsecs * 30
+-- 	-- elementary math of v = d/t
+-- 	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
+-- 	fader.pos = _begin
+-- 	fader.time = 0
+-- end
+
+-- function fade_update()
+-- 	-- TODO clean up and write something more optimal
+-- 	if (fader.time < fader.projected_time_taken) then
+-- 		fader.time +=1
+-- 		fader.pos += fader.projected_velocity
+-- 	elseif (not fader.triggerperformed) then
+-- 		if (fader.trigger) fade.trigger()
+-- 		fader.triggerperformed = true
+-- 	end
+-- 	-- if (fader.state=="in") then
+-- 	-- 	if (fader.pos > 0) then 
+-- 	-- 		fader.pos -= 1
+-- 	-- 	else 
+-- 	-- 		fader.state = "idle" 
+-- 	-- 	end
+-- 	-- elseif (fader.state=="out") then
+-- 	-- 	if (fader.pos < 15) then
+-- 	-- 		fader.pos += 1
+-- 	-- 	else 
+-- 	-- 		fader.state = "idle" end
+-- 	-- end
+-- end
+
+-- function fade_draw(_position)
+-- 	print(fader.pos)
+-- 	for c=0,15 do
+-- 		if flr(_position+1)>=16 then
+-- 			pal(c,0)
+-- 		else
+-- 			pal(c,fader.table[c+1][flr(_position+1)],1)
+-- 		end
 -- 	end
 -- end
 
-function fadein()
-	fade(15, 0, 1)
+-- function fadesettrigger(_trigger)
+-- 	if _trigger then
+-- 		fader.trigger = _trigger
+-- 		fader.triggerperformed = false
+-- 	end
+-- end
+
+-->8
+-- primary game loops
+-- gamestate = "transit"
+
+function _init()
+	-- gamestate = "gameplay"
+	-- gamestate = "menu"
+	gamestate = "splash"
+	splash_init()
+	-- gameplay_init()
+	-- transit("splash")
+	-- gamestate = "transit"
+	-- transit("splash")
+	-- print("ga")
+
 end
 
-function fadeout()
-	fade(0, 15, 1)
-end
+function _update()
+	if (gamestate=="splash") then
+		splash_update()
+	elseif (gamestate=="menu") then
+		menu_update()
+	elseif (gamestate=="gameplay") then
+		gameplay_update()
+	elseif (gamestate=="transit") then
+		transit_update()
+	-- elseif (gamestate==state.lost) then
 
-function fade(_begin, _final, _durationinsecs)
-	-- classic linear tween implementation
-	-- fade.final = _final
-	-- fade.distance = _begin - final
-	-- fader.pos = _begin
-	-- 30 ticks equal one second
-	fader.projected_time_taken = _durationinsecs * 30
-	-- elementary math of v = d/t
-	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
-	fader.pos = _begin
-	fader.time = 0
-end
-
-function fade_update()
-	-- TODO clean up and write something more optimal
-	if (fader.time < fader.projected_time_taken) then
-		fader.time +=1
-		fader.pos += fader.projected_velocity
-	elseif (not fader.triggerperformed) then
-		if (fader.trigger) fade.trigger()
-		fader.triggerperformed = true
+	-- elseif (gamestate==outro) then
 	end
-	-- if (fader.state=="in") then
-	-- 	if (fader.pos > 0) then 
-	-- 		fader.pos -= 1
-	-- 	else 
-	-- 		fader.state = "idle" 
-	-- 	end
-	-- elseif (fader.state=="out") then
-	-- 	if (fader.pos < 15) then
-	-- 		fader.pos += 1
-	-- 	else 
-	-- 		fader.state = "idle" end
+
+	-- fade_update()
+	-- timersys(world)
+end
+
+function _draw()
+	if (gamestate=="splash") then
+		splash_draw()
+	elseif (gamestate=="menu") then
+		menu_draw()
+	elseif (gamestate=="gameplay") then
+		gameplay_draw()
+	elseif (gamestate=="transit") then
+		-- fade_draw()
+	end
+
+	-- cls()
+	print(gamestate)
+	-- fade_draw(fader.pos)
+end
+
+-->8
+-- splash, menu and fade helper methods
+
+init = {
+	-- "splash" = function()
+		
+	-- end,
+	-- "menu" = function()
+
+	-- end,
+
+	-- "gameplay" = function()
+
+	-- end,
+
+	-- "transit" = function()
+
 	-- end
+}
+
+transitor = {
+	destination_state,
+	timer = 0,
+}
+
+function transit(_state)
+	-- fadeout()
+	-- timer(1, function()
+	-- 	gamestate = _state
+	-- 	-- fadein()
+	-- end)
 end
 
-function fade_draw(_position)
-	print(fader.pos)
-	for c=0,15 do
-		if flr(_position+1)>=16 then
-			pal(c,0)
-		else
-			pal(c,fader.table[c+1][flr(_position+1)],1)
-		end
+function transit_update()
+	if (transitor.timer > 0) then
+		transitor.timer -=1
+	else 
+		gamestate = transitor.destination_state
+		fadeout()
 	end
 end
 
-function fadesettrigger(_trigger)
-	if _trigger then
-		fader.trigger = _trigger
-		fader.triggerperformed = false
+function splash_init()
+	-- 30 ticks amount to one second
+	timer = 90
+	-- cls()
+	-- timer(4, transit("menu"))
+	-- fadein()
+	-- transit("menu")
+end
+
+function splash_update()
+	
+	-- a controversial condition and could potentially be problematic
+	-- if (timer == 30) fadeoutto() 
+
+	if (timer>0) then
+		timer-=1
+	else
+		gamestate="menu"
+		menu_init()
 	end
+end
+
+function splash_draw()
+	cls()
+	-- draw logo at sprite number 64
+	spr(64, 32, 48, 64, 32)
+end
+
+function menu_init()
+	-- fadein()
+end
+
+function menu_update()
+	if (btn(5)) then 
+		fadeoutto();
+	end
+end
+
+function menu_draw()
+	cls()
+	print("project wonyun", 16, 16, 8)
+	print("lives left: 47", 16, 32, 7)
+	print("weapon level: 2", 16, 64, 7)
+	print("armor level: 4", 16, 72, 7)
+	print("press x to send another ship", 16, 120, 7)
 end
 
 -->8
@@ -260,51 +402,6 @@ function timer(_lifetimeinsec, _f)
     })
 end
 
--->8
--- primary game loops
-
-function _init()
-	-- gamestate = "gameplay"
-	gamestate = "menu"
-	splash_init()
-	-- gameplay_init()
-
-end
-
-function _update()
-	if (gamestate=="splash") then
-		splash_update()
-	elseif (gamestate=="menu") then
-		menu_update()
-	elseif (gamestate=="gameplay") then
-		gameplay_update()
-	elseif (gamestate=="transit") then
-		transit_update()
-	-- elseif (gamestate==state.lost) then
-
-	-- elseif (gamestate==outro) then
-	end
-
-	fade_update()
-	timersys(world)
-end
-
-function _draw()
-	if (gamestate=="splash") then
-		splash_draw()
-	elseif (gamestate=="menu") then
-		menu_draw()
-	elseif (gamestate=="gameplay") then
-		gameplay_draw()
-	-- elseif (gamestate==state.lost) then
-
-	-- elseif (gamestate==outro) then
-		
-	end
-
-	fade_draw(fader.pos)
-end
-
 
 -- function _init()
 --     wonyun(64, 32, 0, 0.1)
@@ -362,67 +459,6 @@ function player_draw()
 
 end
 
--->8
--- splash, menu and fade helper methods
-
-function transit(_state)
-	fadeout()
-	timer(1, function()
-		gamestate = _state
-		-- fadein()
-	end)
-end
-
-function transit_update()
-
-end
-
-function splash_init()
-	-- 30 ticks amount to one second
-	-- timer = 90
-	cls()
-	-- timer(4, transit("menu"))
-	-- fadein()
-	-- transit("menu")
-end
-
-function splash_update()
-	
-	-- a controversial condition and could potentially be problematic
-	-- if (timer == 30) fadeoutto() 
-
-	-- if (timer>0) then
-	-- 	timer-=1
-	-- else
-	-- 	gamestate="menu"
-	-- 	menu_init()
-	-- end
-end
-
-function splash_draw()
-	cls()
-	-- draw logo at sprite number 64
-	spr(64, 32, 48, 64, 32)
-end
-
-function menu_init()
-	fadein()
-end
-
-function menu_update()
-	if (btn(5)) then 
-		fadeoutto();
-	end
-end
-
-function menu_draw()
-	cls()
-	print("project wonyun", 16, 16, 8)
-	print("lives left: 47", 16, 32, 7)
-	print("weapon level: 2", 16, 64, 7)
-	print("armor level: 4", 16, 72, 7)
-	print("press x to send another ship", 16, 120, 7)
-end
 
 __gfx__
 01111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
