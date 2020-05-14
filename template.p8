@@ -4,8 +4,13 @@ __lua__
 -- pico-8 template
 -- by Juno Nguyen
 
--- TODO create timer system
--- TODO create trigger on fade complete 
+
+-- fade library by kometbomb
+-- http://kometbomb.net/pico8/fadegen.html
+-- entity component system by selfsame
+-- https://www.lexaloffle.com/bbs/?pid=44917
+-- boilerplate by ojdon
+-- https://github.com/ojdon/pico8-boilerplate
 
 -- component entity system and utility functions
 
@@ -52,19 +57,11 @@ function coll(e1, e2)
     return false
 end
 
--- original fade library by kometbomb
--- http://kometbomb.net/pico8/fadegen.html
--- modified and adapted by Juno Nguyen
-
-
 fader = {
 	time = 0,
 	pos = 0, -- full black, according to the table
 	projected_time_taken = 0,
 	projected_velocity = 0,
-	status = "idle",
-	triggerperformed = true,
-	trigger = nil,
 	table= {
 		-- position 15 is all black
 		-- position 0 is all bright colors
@@ -88,7 +85,6 @@ fader = {
 }
 
 function fadein()
-	-- printh("fadein", "template.log")
 	fade(15, 0, 1)
 end
 
@@ -97,15 +93,14 @@ function fadeout()
 end
 
 function fade(_begin, _final, _durationinsecs)
-	-- if (fader.status == "idle")
-		-- 30 ticks equal one second
-		fader.projected_time_taken = _durationinsecs * 30
-		-- elementary math of v = d/t
-		fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
-		fader.pos = _begin
-		fader.time = 0
-		fader.status = "working"
-	-- end
+	-- 30 ticks equal one second
+	fader.projected_time_taken = _durationinsecs * 30
+	-- elementary math of v = d/t
+	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
+	fader.pos = _begin
+	fader.time = 0
+	fader.status = "working"
+
 end
 
 function fade_update()
@@ -124,7 +119,7 @@ function fade_draw(_position)
 	-- print(fader.projected_time_taken)
 	-- print(fader.projected_velocity)
 	-- print(fader.time)
-	pal()
+	-- pal()
 	for c=0,15 do
 		if flr(_position+1)>=16 then
 			pal(c,0)
@@ -143,33 +138,10 @@ end
 
 -->8
 -- primary game loops
--- gamestate = "transit"
 
 gamestate = {}
 
-
--- init = {
--- 	name = ""
--- 	splash = function()
-		
--- 	end,
--- 	menu = function()
-		
--- 	end,
-	
--- 	gameplay = function()
-
--- 	end,
-
--- 	transit = function()
-
--- 	end
--- }
-
--- 1 splash
--- 2 menu
--- 3 gameplay
--- 4 transit
+-- each state is an object with loop functions
 
 splashstate = {
 	name = "splash",
@@ -215,18 +187,33 @@ gameplaystate = {
 	init = function()
 		fadein()
 		world = {}
-		gameplay_init()
+		wonyun(64, 32, 0, 0.1)
+		wonyun(32, 32, 0, -1)
+		wonyun(96, 32, 1, 0)
+	
+		timer(1, function()
+			wonyun(12, 12, 1, 1)
+		end)
 	end,
 	update = function()
-		gameplay_update()
+		motionsys(world)
 		if (btn(5)) then 
 			transit(menustate)
 		end
 	end,
 	draw = function()
-		gameplay_draw()
+		cls()
+		print(count(world))
+		drawsys(world)
+		debugdrawsys(world)
 	end
 }
+
+transitor = {
+	timer = 0,
+	destination_state,
+}
+
 
 transitstate = {
 	name = "transit",
@@ -237,159 +224,42 @@ transitstate = {
 		if (transitor.timer > 0) then
 			transitor.timer -=1
 		else 
-			-- fadein()
 			gamestate = transitor.destination_state
 			gamestate.init()
 		end
 	end,
 	draw = function()
-		-- gameplay_draw()
+
 	end
 }
 
 function transit(_state)
-	-- fadeout()
-	-- timer(1, function()
-	-- 	gamestate = _state
-	-- 	-- fadein()
-	-- end)
-	-- gamestate = 4
 	fadeout()
 	gamestate = transitstate
 	transitor.destination_state = _state
-	-- delay till transit, to wait for fadeout
-	transitor.timer = 30
+	transitor.timer = 28
 end
 
--- function transit_update()
--- 	if (transitor.timer > 0) then
--- 		transitor.timer -=1
--- 	else 
--- 		gamestate = transitor.destination_state
--- 		init[transitor.destination_state]()
--- 		-- fadeout()
--- 	end
--- end
-
 function _init()
-	-- gamestate = "gameplay"
-	-- gamestate = "menu"
 	gamestate = splashstate
 	gamestate.init()
-	-- fadein()
-	-- gameplay_init()
-	-- transit("splash")
-	-- gamestate = "transit"
-	-- transit("splash")
-	-- print("ga")
-
 end
 
 function _update()
 	gamestate.update()
-	-- if (gamestate==1) then 
-		
-	-- elseif (gamestate==2) then
-		-- 	if (btn(5)) then 
-	-- 		transit(3)
-	-- 	end
-	-- elseif (gamestate==3) then
-		-- 	gameplay_update()
-		-- elseif (gamestate==4) then
-	-- 	transit_update()
-	-- -- elseif (gamestate==state.lost) then
-		
-		-- -- elseif (gamestate==outro) then
-	-- end
-
 	fade_update()
-	-- -- timersys(world)
 end
 
 function _draw()
-	-- pal()
-	gamestate.draw()
-	-- if (gamestate==1) then
-	-- 	-- splash_draw()
-	-- 	cls()
-	-- 	-- draw logo at sprite number 64
-	-- 	spr(64, 32, 48, 64, 32)
-	-- elseif (gamestate==2) then
-		-- 	-- menu_draw()
-	-- 	cls()
-	-- 	print("project wonyun", 16, 16, 8)
-	-- 	print("lives left: 47", 16, 32, 7)
-	-- 	print("weapon level: 2", 16, 64, 7)
-	-- 	print("armor level: 4", 16, 72, 7)
-	-- 	print("press x to send another ship", 16, 120, 7)
-	-- elseif (gamestate==3) then
-	-- 	gameplay_draw()
-	-- elseif (gamestate==4) then
-		-- 	-- fade_draw()
-		-- end
+	-- cls() to be ran in invididual states except for transit
+	-- due to interference with fading
 
-	-- cls()
-	-- print(gamestate.name)
+	gamestate.draw()
 	fade_draw(fader.pos)
-	-- print(gamestate.name)
 end
 
 -->8
--- splash, menu and fade helper methods
 
-transitor = {
-	destination_state,
-	timer = 0,
-}
-
-
--- function splash_init()
--- 	transit(2)
--- 	-- 30 ticks amount to one second
--- 	-- timer = 90
--- 	-- cls()
--- 	-- timer(4, transit("menu"))
--- 	-- fadein()
--- 	-- transit("menu")
--- end
-
--- function splash_update()
-	
--- 	-- a controversial condition and could potentially be problematic
--- 	-- if (timer == 30) fadeoutto() 
-
--- 	-- if (timer>0) then
--- 	-- 	timer-=1
--- 	-- else
--- 	-- 	gamestate="menu"
--- 	-- 	menu_init()
--- 	-- end
--- end
-
--- function splash_draw()
--- 	cls()
--- 	-- draw logo at sprite number 64
--- 	spr(64, 32, 48, 64, 32)
--- end
-
--- function menu_init()
--- 	-- fadein()
--- end
-
--- function menu_update()
-	
--- end
-
--- function menu_draw()
--- 	cls()
--- 	print("project wonyun", 16, 16, 8)
--- 	print("lives left: 47", 16, 32, 7)
--- 	print("weapon level: 2", 16, 64, 7)
--- 	print("armor level: 4", 16, 72, 7)
--- 	print("press x to send another ship", 16, 120, 7)
--- end
-
--->8
 -- update system
 
 motionsys = system({"pos", "vel"},
@@ -427,14 +297,12 @@ collisionsys = system({"id"},
 debugdrawsys = system({"pos", "box"},
     function(e)
         rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
-        -- print(e.pos.x + e.pos.y)
     end
 )
 
 drawsys = system({"id", "pos", "box"},
     function(e)
         if (e.id.class == "wonyun") then
-			-- spr(0, e.pos.x, e.pos.y, 16, 16)
 			spr(0, e.pos.x, e.pos.y)
         end
     end
@@ -473,64 +341,6 @@ function timer(_lifetimeinsec, _f)
         }
     })
 end
-
-
--- function _init()
---     wonyun(64, 32, 0, 0.1)
---     wonyun(32, 32, 0, -1)
---     wonyun(96, 32, 1, 0)
-
---     timer(1, function()
---         wonyun(12, 12, 1, 1)
---     end)
--- end
-
--- function _update()
---     motionsys(world)
---     timersys(world)
--- end
-
--- function _draw()
---     cls()
---     print(count(world))
---     drawsys(world)
---     debugdrawsys(world)
--- end
-
--->8
-
-function gameplay_init()
-	wonyun(64, 32, 0, 0.1)
-    wonyun(32, 32, 0, -1)
-    wonyun(96, 32, 1, 0)
-
-    timer(1, function()
-        wonyun(12, 12, 1, 1)
-    end)
-end
-
-function gameplay_update()
-	motionsys(world)
-end
-
-function gameplay_draw()
-	cls()
-	print(count(world))
-	drawsys(world)
-	debugdrawsys(world)
-
-end
-
--->8
-
-function player_update()
-
-end
-
-function player_draw()
-
-end
-
 
 __gfx__
 01111110112222330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
