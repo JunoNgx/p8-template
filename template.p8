@@ -308,6 +308,7 @@ drawsystems = {
 		end
 	),
 
+	-- hitbox draw when enabled
 	system({"id", "pos", "box"},
 		function(e)
 			if not (c.debug_draw_hitbox) then return end
