@@ -81,17 +81,17 @@ fader = {
 	}
 }
 
-function fadein()
-	fade(15, 0, 1)
+function fadein(_durationinsecs)
+	fade(15, 0, _durationinsecs * 30)
 end
 
-function fadeout()
-	fade(0, 15, 1)
+function fadeout(_durationinsecs)
+	fade(0, 15, _durationinsecs * 30)
 end
 
-function fade(_begin, _final, _durationinsecs)
+function fade(_begin, _final, _duration)
 	-- 30 ticks equal one second
-	fader.projected_time_taken = _durationinsecs * 30
+	fader.projected_time_taken = _duration
 	-- elementary math of v = d/t
 	fader.projected_velocity = (_final - _begin) / fader.projected_time_taken
 	fader.pos = _begin
@@ -128,7 +128,7 @@ splashstate = {
 	name = "splash",
 	splashtimer,
 	init = function(self)
-		fadein()
+		fadein(1)
 		self.splashtimer = 45
 	end,
 	update = function(self)
@@ -147,7 +147,7 @@ splashstate = {
 menustate = {
 	name = "menu",
 	init = function(self)
-		fadein()
+		fadein(1)
 	end,
 	update = function(self)
 		if (btnp(5)) then 
@@ -163,7 +163,7 @@ menustate = {
 gameplaystate = {
 	name = "gameplay",
 	init = function(self)
-		fadein()
+		fadein(2)
 		world = {}
 		entity(64, 32, 0, 0.1)
 		entity(32, 32, 0, -1)
@@ -209,7 +209,7 @@ transitstate = {
 }
 
 function transit(_state)
-	fadeout()
+	fadeout(1)
 	gamestate = transitstate
 	transitor.destination_state = _state
 	transitor.timer = 28
