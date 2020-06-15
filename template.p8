@@ -165,12 +165,18 @@ gameplaystate = {
 	init = function(self)
 		fadein(2)
 		world = {}
-		entity(64, 32, 0, 0.1)
-		entity(32, 32, 0, -1)
-		entity(96, 32, 1, 0)
+		e1 = entity(64, 32, 0, 0.1)
+		e1.shadow = {x=1, y=1}
+		add(world, e1)
+
+		e2 = entity(32, 32, 0, -1)
+		e2.shadow = {x=2, y=3}
+		add(world, e2)
+
+		add(world, entity(96, 32, 1, 0))
 	
 		timer(4, function()
-			entity(12, 12, 1, 1)
+			add(world, entity(12, 12, 1, 1))
 		end)
 	end,
 	update = function(self)
@@ -283,16 +289,15 @@ drawsystems = {
 	-- which should facilitate layer drawing
 
 	-- shadow draw
-	system({"id", "pos", "box"},
+	system({"id", "pos", "box", "shadow"},
 		function(e)
-			local shadow_offset = 2
 
 			if (e.id.class == "rect") then
 				rectfill(
-					e.pos.x + shadow_offset,
-					e.pos.y + shadow_offset,
-					e.pos.x + e.box.w + shadow_offset,
-					e.pos.y+ e.box.h + shadow_offset,
+					e.pos.x + e.shadow.x,
+					e.pos.y + e.shadow.y,
+					e.pos.x + e.box.w + e.shadow.x,
+					e.pos.y+ e.box.h + e.shadow.y,
 					5
 				)
 			end
@@ -322,7 +327,7 @@ drawsystems = {
 
 function entity(_x , _y, _vx, _vy)
 
-    add(world, {
+    return {
         id = {
             class = "rect"
         },
@@ -334,10 +339,10 @@ function entity(_x , _y, _vx, _vy)
             x=_vx,
             y=_vy
 		},
-		shadows = {
-			x = 2,
-			y = 2
-		},
+		-- shadows = {
+		-- 	x = 2,
+		-- 	y = 2
+		-- },
 		outofboundsloop = true,
         box = {
             w = 4,
@@ -354,7 +359,7 @@ function entity(_x , _y, _vx, _vy)
 		-- 		e.pos.y+ e.box.h+_soy,
 		-- 	8)
 		-- end
-    })
+    }
 end
 
 function timer(_lifetimeinsec, _f) 
