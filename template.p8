@@ -11,22 +11,23 @@ __lua__
 -- boilerplate by ojdon
 -- https://github.com/ojdon/pico8-boilerplate
 
+
+c = {
+	debug_draw_hitbox = true
+}
+
 -- component entity system and utility functions
 function _has(e, ks)
-    for c in all(ks) do
-        if e[c] then 
-            return true
-        end
+	for c in all(ks) do
+        if not e[c] then return false end
     end
-    return false
+    return true
 end
 
 function system(ks, f)
     return function(system)
         for e in all(system) do
-            if _has(e, ks) then
-                f(e)
-            end
+            if _has(e, ks) then f(e) end
         end
     end
 end
@@ -100,22 +101,13 @@ function fade(_begin, _final, _durationinsecs)
 end
 
 function fade_update()
-	-- TODO clean up and write something more optimal
 	if (fader.time < fader.projected_time_taken) then
 		fader.time +=1
 		fader.pos += fader.projected_velocity
-	else 
-		pal()
 	end
 end
 
 function fade_draw(_position)
-	-- for debug
-	-- print(fader.pos)
-	-- print(fader.projected_time_taken)
-	-- print(fader.projected_velocity)
-	-- print(fader.time)
-	-- pal()
 	for c=0,15 do
 		if flr(_position+1)>=16 then
 			pal(c,0)
@@ -134,13 +126,14 @@ gamestate = {}
 
 splashstate = {
 	name = "splash",
-	init = function()
+	splashtimer,
+	init = function(self)
 		fadein()
-		splashtimer =45
+		self.splashtimer = 45
 	end,
-	update = function()
-		if (splashtimer > 0) then
-			splashtimer -= 1
+	update = function(self)
+		if (self.splashtimer > 0) then
+			self.splashtimer -= 1
 		else
 			transit(menustate)
 		end
@@ -153,47 +146,41 @@ splashstate = {
 
 menustate = {
 	name = "menu",
-	init = function()
+	init = function(self)
 		fadein()
 	end,
-	update = function()
-		if (btn(5)) then 
+	update = function(self)
+		if (btnp(5)) then 
 			transit(gameplaystate)
 		end
 	end,
-	draw = function()
-		print("project wonyun", 16, 16, 8)
-		print("lives left: 47", 16, 32, 7)
-		print("weapon level: 2", 16, 64, 7)
-		print("armor level: 4", 16, 72, 7)
-		print("press x to send another ship", 16, 120, 7)
-		spr(1, 12, 12)
+	draw = function(self)
+		print("main menu", 16, 16, 7)
+		print("press x to transit", 16, 96, 7)
 	end
 }
 
 gameplaystate = {
 	name = "gameplay",
-	init = function()
+	init = function(self)
 		fadein()
 		world = {}
-		wonyun(64, 32, 0, 0.1)
-		wonyun(32, 32, 0, -1)
-		wonyun(96, 32, 1, 0)
+		entity(64, 32, 0, 0.1)
+		entity(32, 32, 0, -1)
+		entity(96, 32, 1, 0)
 	
-		timer(1, function()
-			wonyun(12, 12, 1, 1)
+		timer(4, function()
+			entity(12, 12, 1, 1)
 		end)
 	end,
-	update = function()
-		motionsys(world)
-		if (btn(5)) then 
-			transit(menustate)
-		end
+	update = function(self)
+		for _, system in pairs(updatesystems) do system(world) end
+		if (btn(5)) then transit(menustate) end
 	end,
-	draw = function()
+	draw = function(self)
+
 		print(count(world))
-		drawsys(world)
-		debugdrawsys(world)
+		for _, system in pairs(drawsystems) do system(world) end
 	end
 }
 
@@ -205,10 +192,10 @@ transitor = {
 
 transitstate = {
 	name = "transit",
-	init = function()
+	init = function(self)
 
 	end,
-	update = function()
+	update = function(self)
 		if (transitor.timer > 0) then
 			transitor.timer -=1
 		else 
@@ -216,7 +203,7 @@ transitstate = {
 			gamestate.init()
 		end
 	end,
-	draw = function()
+	draw = function(self)
 
 	end
 }
@@ -230,11 +217,12 @@ end
 
 function _init()
 	gamestate = splashstate
-	gamestate.init()
+	-- gamestate = gameplaystate
+	gamestate:init()
 end
 
 function _update()
-	gamestate.update()
+	gamestate:update()
 	fade_update()
 end
 
@@ -242,67 +230,100 @@ function _draw()
 	-- due to interference with fading
 	if (gamestate.name ~= "transit") cls()
 
-	gamestate.draw()
+	gamestate:draw()
 	fade_draw(fader.pos)
 end
 
 -->8
 -- update system
+updatesystems = {
+	motionsys = system({"pos", "vel"},
+		function(e) 
+			e.pos.x += e.vel.x
+			e.pos.y += e.vel.y
+		end
+	),
 
-motionsys = system({"pos", "vel"},
-    function(e) 
-        e.pos.x += e.vel.x
-        e.pos.y += e.vel.y
-    end
-)
+	timersys = system ({"timer"},
+		function(e)
+			if (e.timer.lifetime > 0) then
+				e.timer.lifetime -= 1
+			else 
+				e.timer.trigger()
+				del(world, e)
+			end
+		end
+	),
 
-timersys = system ({"timer"},
-    function(e)
-        if (e.timer.lifetime > 0) then
-            e.timer.lifetime -= 1
-        else 
-            e.timer.trigger()
-            del(world, e)
-        end
-    end
-)
+	outofboundsloopsys = system({"outofboundsloop"},
+		function(e)
+			if (e.pos.x > 131) then e.pos.x = -4 end
+			if (e.pos.x < -4) then e.pos.x = 131 end		
+			if (e.pos.y > 131) then e.pos.y = -4 end
+			if (e.pos.y < -4) then e.pos.y = 131 end
+		end
+	),
 
-collisionsys = system({"id"},
-    function(e)
-        if (e.id.class == "player") then
-            enemies = getid("enemy")
-            for ee in all(enemies) do
-                -- if coll()
-            end
-        end
-    end
-)
+	collisionsys = system({"id"},
+		function(e)
+			if (e.id.class == "player") then
+				enemies = getid("enemy")
+				for ee in all(enemies) do
+					-- if coll()
+				end
+			end
+		end
+	)
+}
 
 -->8
 -- draw systems
+drawsystems = {
+	-- keys are removed so each system can be iterated through in sequence
+	-- which should facilitate layer drawing
 
-debugdrawsys = system({"pos", "box"},
-    function(e)
-        rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
-    end
-)
+	-- shadow draw
+	system({"id", "pos", "box"},
+		function(e)
+			local shadow_offset = 2
 
-drawsys = system({"id", "pos", "box"},
-    function(e)
-        if (e.id.class == "wonyun") then
-			spr(0, e.pos.x, e.pos.y)
-        end
-    end
-)
+			if (e.id.class == "rect") then
+				rectfill(
+					e.pos.x + shadow_offset,
+					e.pos.y + shadow_offset,
+					e.pos.x + e.box.w + shadow_offset,
+					e.pos.y+ e.box.h + shadow_offset,
+					5
+				)
+			end
+		end
+	),
+
+	-- main draw
+	system({"id", "pos", "box"},
+		function(e)
+			if (e.id.class == "rect") then
+				rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
+			end
+		end
+	),
+
+	system({"id", "pos", "box"},
+		function(e)
+			if not (c.debug_draw_hitbox) then return end
+			rect(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
+		end
+	)
+}
 
 -->8
 -- entity constructors
 
-function wonyun(_x , _y, _vx, _vy)
+function entity(_x , _y, _vx, _vy)
 
     add(world, {
         id = {
-            class = "wonyun"
+            class = "rect"
         },
         pos = {
             x=_x,
@@ -311,18 +332,33 @@ function wonyun(_x , _y, _vx, _vy)
         vel = {
             x=_vx,
             y=_vy
-        },
+		},
+		shadows = {
+			x = 2,
+			y = 2
+		},
+		outofboundsloop = true,
         box = {
             w = 4,
             h = 4
-        }
+		},
+		-- draw = function(self, _shadowoffset_x, _shadowoffset_y)
+		-- 	local _sox = (_shadowoffset_x) and _shadowoffset_x or 0
+		-- 	local _soy = (_shadowoffset_y) and _shadowoffset_y or 0
+
+		-- 	rectfill(
+		-- 		e.pos.x+_sox,
+		-- 		e.pos.y+_soy,
+		-- 		e.pos.x + e.box.w+_sox,
+		-- 		e.pos.y+ e.box.h+_soy,
+		-- 	8)
+		-- end
     })
 end
 
 function timer(_lifetimeinsec, _f) 
     add(world, {
         timer = {
-            -- 30 frames take up one second
             lifetime = _lifetimeinsec * 30,
             trigger = _f
         }
@@ -330,14 +366,14 @@ function timer(_lifetimeinsec, _f)
 end
 
 __gfx__
-01111110112222330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110122120330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110122123030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110445566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110450566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-011111108899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-011111108899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111110cc9daeeb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000112222330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+08555580122120330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05855850122123030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05588550445566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05588550450566770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+058558508899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+085555808899aabb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000cc9daeeb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
