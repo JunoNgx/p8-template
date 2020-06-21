@@ -11,194 +11,19 @@ __lua__
 -- boilerplate by ojdon
 -- https://github.com/ojdon/pico8-boilerplate
 
+#include Constants.lua
+#include Utilities.lua
 
-c = {
- 	debug_draw_hitbox = true
-}
+#include modules/fadeModule.lua
 
-function _has(e, ks)
-	for c in all(ks) do
-        if not e[c] then return false end
-    end
-    return true
-end
+#include states/splashState.lua
+#include states/menuState.lua
+#include states/gameplayState.lua
+#include states/transitState.lua
 
--- iterate through entire table of entities (world)
--- run a custom function via the second parameter
-function System(ks, f)
-    return function(system)
-        for e in all(system) do
-            if _has(e, ks) then f(e) end
-        end
-    end
-end
+#include entities/Timer.lua
+#include entities/Entity.lua
 
--- basic AABB collision detection using pos and box components
-function coll(e1, e2)
-	if e1.pos.x < e2.pos.x + e2.box.w and
-		e1.pos.x + e1.box.w > e2.pos.x and
-		e1.pos.y < e2.pos.y + e2.box.h and
-		e1.pos.y + e1.box.h > e2.pos.y then
-
-		return true
-	end
-	return false
-end
-
-fadeModule = {
-	timer = 0,
-	projectedTimeTaken = 0,
-	position = 0, -- full black
-	velocity = 0,
-	table = {
-		-- position 15 is black
-		-- position 0 is the original color
-		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-		{2,2,2,2,2,2,1,1,1,0,0,0,0,0,0},
-		{3,3,3,3,3,3,1,1,1,0,0,0,0,0,0},
-		{4,4,4,2,2,2,2,2,1,1,0,0,0,0,0},
-		{5,5,5,5,5,1,1,1,1,1,0,0,0,0,0},
-		{6,6,13,13,13,13,5,5,5,5,1,1,1,0,0},
-		{7,6,6,6,6,13,13,13,5,5,5,1,1,0,0},
-		{8,8,8,8,2,2,2,2,2,2,0,0,0,0,0},
-		{9,9,9,4,4,4,4,4,4,5,5,0,0,0,0},
-		{10,10,9,9,9,4,4,4,5,5,5,5,0,0,0},
-		{11,11,11,3,3,3,3,3,3,3,0,0,0,0,0},
-		{12,12,12,12,12,3,3,1,1,1,1,1,1,0,0},
-		{13,13,13,5,5,5,5,1,1,1,1,1,0,0,0},
-		{14,14,14,13,4,4,2,2,2,2,2,1,1,0,0},
-		{15,15,6,13,13,13,5,5,5,5,5,1,1,0,0}
-	},
-	fade = function(self, _mode, _durationInTicks)
-
-		self.timer = 0
-		self.projectedTimeTaken = _durationInTicks
-
-		local _beginPos, _finalPos
-		if (_mode == "in") then
-			_beginPos = 15
-			_finalPos = 1
-		elseif (_mode == "out") then
-			_beginPos = 1
-			_finalPos = 15
-		end
-
-		self.position = _beginPos
-		self.velocity = (_finalPos - _beginPos)/_durationInTicks
-	end,
-	update = function(self)
-    	if self.timer >= self.projectedTimeTaken then return end
-		self.timer += 1
-		self.position += self.velocity
-	end,
-	draw = function(self)
-		for c=0, 15 do
-			pal(c, self.table[c+1][flr(self.position+1)], 1)
-		end
-	end
-}
-
--->8
--- primary game loops
-
-splashState = {
-	name = "splash",
-	splashTimer,
-	init = function(self)
-		fadeModule:fade("in", 30)
-		self.splashTimer = 45
-	end,
-	update = function(self)
-		if (self.splashTimer > 0) then
-			self.splashTimer -= 1
-		else
-			transit(menuState)
-		end
-	end,
-	draw = function()
-		spr(192, 32, 48, 64, 32)
-	end
-}
-
-menuState = {
-	name = "menu",
-	init = function(self)
-		fadeModule:fade("in", 30)
-	end,
-	update = function(self)
-		if (btnp(5)) then
-			transit(gameplayState)
-		end
-	end,
-	draw = function(self)
-		print("main menu", 16, 16, 7)
-		print("press x to transit", 16, 96, 7)
-	end
-}
-
-gameplayState = {
-	name = "gameplay",
-	init = function(self)
-		fadeModule:fade("in", 30)
-		world = {}
-		e1 = Entity(64, 32, 0, 0.1)
-		e1.shadow = {x=1, y=1}
-		add(world, e1)
-  
-		e2 = Entity(32, 32, 0, -1)
-		e2.shadow = {x=2, y=3}
-		add(world, e2)
-  
-		add(world, Entity(96, 32, 1, 0))
-
-		-- for i=1,200 do
-		-- 	e = Entity(rnd(127), rnd(127), 0.5-rnd(), 0.5-rnd())
-		-- 	e.shadow = {x=2, y=2}
-		-- 		add(world, e)
-		-- end
-
-		Timer(4, function()
-			add(world, Entity(12, 12, 1, 1))
-		end)
-
-		end,
-	update = function(self)
-		for _, system in pairs(updateSystems) do system(world) end
-		if (btn(5)) then transit(menuState) end
-	end,
-	draw = function(self)
-		print(count(world))
-		for _, system in pairs(drawSystems) do system(world) end
-	end
-}
-
-transitState = {
-	name = "transit",
-	timer = 0,
-	destinationState,
-	init = function()
-
-	end,
-	update = function(self)
-		if (self.timer > 0) then
-			self.timer -=1
-		else 
-			gameState = self.destinationState
-			gameState:init()
-		end
-	end,
-	draw = function(self)
-
-	end
-}
-
-function transit(_state)
-	fadeModule:fade("out", 30)
-	gameState = transitState
-	transitState.destinationState = _state
-	transitState.timer = 28
-end
 
 function _init()
 	gameState = splashState
@@ -294,60 +119,12 @@ drawSystems = {
 	-- hitbox draw when enabled
 	System({"id", "pos", "box"},
 		function(e)
-			if not (c.debug_draw_hitbox) then return end
+			if not (C.DEBUG_DRAW_HITBOX) then return end
 			rect(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
 		end
 	)
 }
 
--->8
--- entity constructors
-
-function Entity(_x , _y, _vx, _vy)
-
-    return {
-        id = {
-            class = "rect"
-        },
-        pos = {
-            x=_x,
-            y=_y,
-        },
-        vel = {
-            x=_vx,
-            y=_vy
-		},
-		-- shadows = {
-		-- 	x = 2,
-		-- 	y = 2
-		-- },
-		outofboundsloop = true,
-        box = {
-            w = 4,
-            h = 4
-		},
-		-- draw = function(self, _shadowoffset_x, _shadowoffset_y)
-		-- 	local _sox = (_shadowoffset_x) and _shadowoffset_x or 0
-		-- 	local _soy = (_shadowoffset_y) and _shadowoffset_y or 0
-
-		-- 	rectfill(
-		-- 		e.pos.x+_sox,
-		-- 		e.pos.y+_soy,
-		-- 		e.pos.x + e.box.w+_sox,
-		-- 		e.pos.y+ e.box.h+_soy,
-		-- 	8)
-		-- end
-    }
-end
-
-function Timer(_lifetimeinsec, _f)
-    add(world, {
-        timer = {
-            lifetime = _lifetimeinsec * 30,
-            trigger = _f
-        }
-    })
-end
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
