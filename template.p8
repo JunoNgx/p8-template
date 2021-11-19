@@ -12,9 +12,10 @@ __lua__
 -- https://github.com/ojdon/pico8-boilerplate
 
 #include Constants.lua
-#include Utilities.lua
+-- #include Utilities.lua
 
 #include modules/fadeOverlay.lua
+#include modules/core.lua
 
 #include states/splashState.lua
 #include states/menuState.lua
@@ -46,14 +47,14 @@ end
 -->8
 -- update system
 updateSystems = {
-	motionSys = System({"pos", "vel"},
+	motionSys = createSystem({"pos", "vel"},
 		function(e)
 			e.pos.x += e.vel.x
 			e.pos.y += e.vel.y
 		end
 	),
 
-	timerSys = System ({"timer"},
+	timerSys = createSystem({"timer"},
 		function(e)
 			if (e.timer.lifetime > 0) then
 				e.timer.lifetime -= 1
@@ -64,7 +65,7 @@ updateSystems = {
 		end
 	),
 
-	outOfBoundsLoopSys = System({"outofboundsloop"},
+	outOfBoundsLoopSys = createSystem({"outofboundsloop"},
 		function(e)
 			if (e.pos.x > 131) then e.pos.x = -4 end
 			if (e.pos.x < -4) then e.pos.x = 131 end
@@ -73,7 +74,7 @@ updateSystems = {
 		end
 	),
 
-	collisionSys = System({"id"},
+	collisionSys = createSystem({"id"},
 		function(e)
 			if (e.id.class == "player") then
 				enemies = getid("enemy")
@@ -92,7 +93,7 @@ drawSystems = {
 	-- which should facilitate layer drawing
 
 	-- shadow draw
-	System({"id", "pos", "box", "shadow"},
+	createSystem({"id", "pos", "box", "shadow"},
 		function(e)
 
 			if (e.id.class == "rect") then
@@ -108,7 +109,7 @@ drawSystems = {
 	),
 
 	-- main draw
-	System({"id", "pos", "box"},
+	createSystem({"id", "pos", "box"},
 		function(e)
 			if (e.id.class == "rect") then
 				rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
@@ -117,7 +118,7 @@ drawSystems = {
 	),
 
 	-- hitbox draw when enabled
-	System({"id", "pos", "box"},
+	createSystem({"id", "pos", "box"},
 		function(e)
 			if not (C.DEBUG_DRAW_HITBOX) then return end
 			rect(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)

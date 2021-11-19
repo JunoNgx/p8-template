@@ -1,16 +1,16 @@
-function _has(e, ks)
-	for c in all(ks) do
-        if not e[c] then return false end
+function hasComponents(entity, componentList)
+	for component in all(componentList) do
+        if not entity[component] then return false end
     end
     return true
 end
 
 -- iterate through entire table of entities (world)
 -- run a custom function via the second parameter
-function System(ks, f)
-    return function(system)
-        for e in all(system) do
-            if _has(e, ks) then f(e) end
+function createSystem(componentList, processFunc)
+    return function(entityContainer)
+        for entity in all(entityContainer) do
+            if hasComponents(entity, componentList) then processFunc(entity) end
         end
     end
 end
