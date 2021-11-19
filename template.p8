@@ -22,6 +22,8 @@ __lua__
 #include states/gameplayState.lua
 #include states/transitState.lua
 
+#include systems/motionSystem.lua
+
 #include systems/drawRectSystem.lua
 #include systems/drawRectShadowSystem.lua
 

@@ -27,6 +27,7 @@ gameplayState = {
 		-- end)
 		add(visualSystems, createDrawShadowSystem());
 		add(visualSystems, createDrawRectSystem());
+		add(logicSystems, createMotionSystem());
 
 		end,
 	update = function(self)
