@@ -1,4 +1,5 @@
 fadeOverlay = {
+	isActive = false,
 	timer = 0,
 	projectedTimeTaken = 0,
 	position = 0,
@@ -26,6 +27,7 @@ fadeOverlay = {
 
 	fade = function(self, _mode, _durationInTicks)
 
+		self.isActive = true
 		self.timer = 0
 		self.projectedTimeTaken = _durationInTicks
 
@@ -43,12 +45,20 @@ fadeOverlay = {
 	end,
 
 	update = function(self)
-    	if self.timer >= self.projectedTimeTaken then return end
-		self.timer += 1
-		self.position += self.velocity
+		if (self.isActive) then
+			self.timer += 1
+			self.position += self.velocity
+
+			if self.timer >= self.projectedTimeTaken then
+				self.isActive = false
+			end
+
+		end
 	end,
 
 	draw = function(self)
+		if (not self.isActive) then return end
+
 		for color = 0, 15 do
 			pal(
 				color,
@@ -56,5 +66,6 @@ fadeOverlay = {
 				1
 			)
 		end
+		
 	end
 }
