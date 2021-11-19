@@ -38,8 +38,8 @@ __lua__
 function _init()
 	resetEntitiesAndSystems()
 
-	-- currentState = splashState
-	currentState = gameplayState
+	currentState = splashState
+	-- currentState = gameplayState
 	currentState:init()
 end
 
@@ -72,93 +72,6 @@ function resetEntitiesAndSystems()
 	logicSystems = {}
 	visualSystems = {}
 end
-
--->8
--- update system
--- updateSystems = {
--- 	motionSys = createSystem({"pos", "vel"},
--- 		function(e)
--- 			e.pos.x += e.vel.x
--- 			e.pos.y += e.vel.y
--- 		end
--- 	),
-
--- 	timerSys = createSystem ({"timer"},
--- 		function(e)
--- 			if (e.timer.lifetime > 0) then
--- 				e.timer.lifetime -= 1
--- 			else
--- 				e.timer.trigger()
--- 				del(world, e)
--- 			end
--- 		end
--- 	),
-
--- 	outOfBoundsLoopSys = createSystem({"outofboundsloop"},
--- 		function(e)
--- 			if (e.pos.x > 131) then e.pos.x = -4 end
--- 			if (e.pos.x < -4) then e.pos.x = 131 end
--- 			if (e.pos.y > 131) then e.pos.y = -4 end
--- 			if (e.pos.y < -4) then e.pos.y = 131 end
--- 		end
--- 	),
-
--- 	collisionSys = createSystem({"id"},
--- 		function(e)
--- 			if (e.id.class == "player") then
--- 				enemies = getid("enemy")
--- 				for ee in all(enemies) do
--- 					-- if coll()
--- 				end
--- 			end
--- 		end
--- 	)
--- }
-
--->8
--- draw systems
--- drawSystems = {
--- 	-- keys are removed so each system can be iterated through in sequence
--- 	-- which should facilitate layer drawing
-
--- 	-- shadow draw
--- 	createSystem({"id", "pos", "box", "shadow"},
--- 		function(e)
-
--- 			if (e.id.class == "rect") then
--- 				rectfill(
--- 					e.pos.x + e.shadow.x,
--- 					e.pos.y + e.shadow.y,
--- 					e.pos.x + e.box.w + e.shadow.x,
--- 					e.pos.y+ e.box.h + e.shadow.y,
--- 					5
--- 				)
--- 			end
--- 		end
--- 	),
-
--- 	-- main draw
--- 	createSystem({"id", "pos", "box"},
--- 		function(e)
--- 			if (e) then
--- 				if (e.id) then
--- 					if (e.id.class == "rect") then
--- 						rectfill(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
--- 					end
--- 				end
--- 			end
--- 		end
--- 	),
-
--- 	-- hitbox draw when enabled
--- 	createSystem({"id", "pos", "box"},
--- 		function(e)
--- 			if not (C.DEBUG_DRAW_HITBOX) then return end
--- 			rect(e.pos.x, e.pos.y, e.pos.x + e.box.w, e.pos.y+ e.box.h, 8)
--- 		end
--- 	)
--- }
-
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
