@@ -16,11 +16,11 @@ gameplayState = {
   
 		add(world, Entity(96, 32, 1, 0))
 
-		-- for i=1,200 do
-		-- 	e = Entity(rnd(127), rnd(127), 0.5-rnd(), 0.5-rnd())
-		-- 	e.shadow = {x=2, y=2}
-		-- 		add(world, e)
-		-- end
+		for i=1, 5 do
+			e = Entity(rnd(127), rnd(127), 0.5-rnd(), 0.5-rnd())
+			e.shadow = {x=2, y=2}
+				add(world, e)
+		end
 
 		Timer(4, function()
 			add(world, Entity(12, 12, 1, 1))
@@ -29,7 +29,7 @@ gameplayState = {
 		add(logicSystems, createMotionSystem());
 		add(logicSystems, createTimerSystem());
 		add(logicSystems, createOutOfBoundsLoopSystem());
-		
+
 		add(visualSystems, createDrawShadowSystem());
 		add(visualSystems, createDrawRectSystem());
 		add(visualSystems, createDrawDebugHitboxSystem());
