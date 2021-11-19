@@ -32,29 +32,41 @@ __lua__
 
 
 function _init()
-	world = {};
-	logicSystems = {};
-	visualSystems = {};
+	resetEntitiesAndSystems()
 
-	-- currentState = splashState
-	currentState = gameplayState
+	currentState = splashState
+	-- currentState = gameplayState
 	currentState:init()
 end
 
 function _update()
-	for systemId, systemFunc in pairs(logicSystems) do systemFunc(world) end
+	if (currentState.name ~= "transit") then
+		for systemId, systemFunc in pairs(logicSystems) do
+			systemFunc(world)
+		end
+	end
 
 	currentState:update()
 	fadeOverlay:update()
 end
 
 function _draw()
-	if (currentState.name ~= "transit") then cls() end
+	if (currentState.name ~= "transit") then
+		cls()
+		for systemId, systemFunc in pairs(visualSystems) do
+			systemFunc(world)
+		end
+	end
 
-	for systemId, systemFunc in pairs(visualSystems) do systemFunc(world) end
 
 	currentState:draw()
 	fadeOverlay:draw()
+end
+
+function resetEntitiesAndSystems()
+	world = {}
+	logicSystems = {}
+	visualSystems = {}
 end
 
 -->8

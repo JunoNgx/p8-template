@@ -4,7 +4,7 @@ gameplayState = {
 	name = "gameplay",
 	init = function(self)
 
-		-- fadeOverlay:fade("in", 30)
+		fadeOverlay:fade("in", 30)
 		world = {}
 		e1 = Entity(64, 32, 0, 0.1)
 		e1.shadow = {x=1, y=1}
