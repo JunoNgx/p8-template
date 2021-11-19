@@ -26,12 +26,14 @@ gameplayState = {
 			add(world, Entity(12, 12, 1, 1))
 		end)
 
-		add(visualSystems, createDrawShadowSystem());
-		add(visualSystems, createDrawRectSystem());
 		add(logicSystems, createMotionSystem());
 		add(logicSystems, createTimerSystem());
 		add(logicSystems, createOutOfBoundsLoopSystem());
-
+		
+		add(visualSystems, createDrawShadowSystem());
+		add(visualSystems, createDrawRectSystem());
+		add(visualSystems, createDrawDebugHitboxSystem());
+		
 	end,
 
 	update = function(self)

@@ -11,7 +11,7 @@ __lua__
 -- boilerplate by ojdon
 -- https://github.com/ojdon/pico8-boilerplate
 
-#include Constants.lua
+#include config.lua
 
 #include modules/core.lua
 #include modules/fadeOverlay.lua
@@ -28,6 +28,7 @@ __lua__
 
 #include systems/drawRectSystem.lua
 #include systems/drawRectShadowSystem.lua
+#include systems/drawDebugHitboxSystem.lua
 
 
 #include entities/Timer.lua
