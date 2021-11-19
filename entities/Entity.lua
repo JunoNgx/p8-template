@@ -21,6 +21,10 @@ function Entity(_x , _y, _vx, _vy)
             w = 4,
             h = 4
 		},
+
+		-- Alternatively, it is less resource-taxing to define the entity's
+		-- graphic here and draw all entities using a single system
+
 		-- draw = function(self, _shadowoffset_x, _shadowoffset_y)
 		-- 	local _sox = (_shadowoffset_x) and _shadowoffset_x or 0
 		-- 	local _soy = (_shadowoffset_y) and _shadowoffset_y or 0
