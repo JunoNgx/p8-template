@@ -1,7 +1,7 @@
 menuState = {
 	name = "menu",
 	init = function(self)
-		fadeModule:fade("in", 30)
+		fadeOverlay:fade("in", 30)
 	end,
 	update = function(self)
 		if (btnp(5)) then

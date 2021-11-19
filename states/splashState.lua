@@ -2,7 +2,7 @@ splashState = {
 	name = "splash",
 	splashTimer,
 	init = function(self)
-		fadeModule:fade("in", 30)
+		fadeOverlay:fade("in", 30)
 		self.splashTimer = 45
 	end,
 	update = function(self)

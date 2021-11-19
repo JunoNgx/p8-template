@@ -14,7 +14,7 @@ __lua__
 #include Constants.lua
 #include Utilities.lua
 
-#include modules/fadeModule.lua
+#include modules/fadeOverlay.lua
 
 #include states/splashState.lua
 #include states/menuState.lua
@@ -33,14 +33,14 @@ end
 
 function _update()
 	gameState:update()
-	fadeModule:update()
+	fadeOverlay:update()
 end
 
 function _draw()
 	if (gameState.name ~= "transit") then cls() end
 
 	gameState:draw()
-	fadeModule:draw()
+	fadeOverlay:draw()
 end
 
 -->8

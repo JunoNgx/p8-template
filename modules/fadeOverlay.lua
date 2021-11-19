@@ -1,4 +1,4 @@
-fadeModule = {
+fadeOverlay = {
 	timer = 0,
 	projectedTimeTaken = 0,
 	position = 0, -- full black
