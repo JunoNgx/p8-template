@@ -26,6 +26,7 @@ __lua__
 
 #include systems/drawRectSystem.lua
 #include systems/drawRectShadowSystem.lua
+#include systems/timerSystem.lua
 
 #include entities/Timer.lua
 #include entities/Entity.lua
@@ -34,8 +35,8 @@ __lua__
 function _init()
 	resetEntitiesAndSystems()
 
-	currentState = splashState
-	-- currentState = gameplayState
+	-- currentState = splashState
+	currentState = gameplayState
 	currentState:init()
 end
 

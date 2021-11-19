@@ -22,12 +22,14 @@ gameplayState = {
 		-- 		add(world, e)
 		-- end
 
-		-- Timer(4, function()
-		-- 	add(world, Entity(12, 12, 1, 1))
-		-- end)
+		Timer(4, function()
+			add(world, Entity(12, 12, 1, 1))
+		end)
+		
 		add(visualSystems, createDrawShadowSystem());
 		add(visualSystems, createDrawRectSystem());
 		add(logicSystems, createMotionSystem());
+		add(logicSystems, createTimerSystem());
 
 		end,
 	update = function(self)
