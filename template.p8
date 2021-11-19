@@ -26,20 +26,20 @@ __lua__
 
 
 function _init()
-	gameState = splashState
-	-- gameState = gameplayState
-	gameState:init()
+	currentState = splashState
+	-- currentState = gameplayState
+	currentState:init()
 end
 
 function _update()
-	gameState:update()
+	currentState:update()
 	fadeOverlay:update()
 end
 
 function _draw()
-	if (gameState.name ~= "transit") then cls() end
+	if (currentState.name ~= "transit") then cls() end
 
-	gameState:draw()
+	currentState:draw()
 	fadeOverlay:draw()
 end
 

@@ -5,14 +5,16 @@ transitState = {
 	init = function()
 
 	end,
+
 	update = function(self)
 		if (self.timer > 0) then
 			self.timer -=1
 		else 
-			gameState = self.destinationState
-			gameState:init()
+			currentState = self.destinationState
+			currentState:init()
 		end
 	end,
+	
 	draw = function(self)
 
 	end
@@ -20,7 +22,7 @@ transitState = {
 
 function transit(_state)
 	fadeOverlay:fade("out", 30)
-	gameState = transitState
+	currentState = transitState
 	transitState.destinationState = _state
 	transitState.timer = 28
 end
