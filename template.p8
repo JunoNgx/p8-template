@@ -23,10 +23,12 @@ __lua__
 #include states/transitState.lua
 
 #include systems/motionSystem.lua
+#include systems/timerSystem.lua
+#include systems/outOfBoundsLoopSystem.lua
 
 #include systems/drawRectSystem.lua
 #include systems/drawRectShadowSystem.lua
-#include systems/timerSystem.lua
+
 
 #include entities/Timer.lua
 #include entities/Entity.lua

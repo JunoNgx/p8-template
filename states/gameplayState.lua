@@ -25,16 +25,19 @@ gameplayState = {
 		Timer(4, function()
 			add(world, Entity(12, 12, 1, 1))
 		end)
-		
+
 		add(visualSystems, createDrawShadowSystem());
 		add(visualSystems, createDrawRectSystem());
 		add(logicSystems, createMotionSystem());
 		add(logicSystems, createTimerSystem());
+		add(logicSystems, createOutOfBoundsLoopSystem());
 
-		end,
+	end,
+
 	update = function(self)
 		if (btn(5)) then transit(menuState) end
 	end,
+
 	draw = function(self)
 		print(count(world))
 	end
