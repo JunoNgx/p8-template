@@ -1,7 +1,10 @@
+
+
 gameplayState = {
 	name = "gameplay",
 	init = function(self)
-		fadeOverlay:fade("in", 30)
+
+		-- fadeOverlay:fade("in", 30)
 		world = {}
 		e1 = Entity(64, 32, 0, 0.1)
 		e1.shadow = {x=1, y=1}
@@ -19,17 +22,17 @@ gameplayState = {
 		-- 		add(world, e)
 		-- end
 
-		Timer(4, function()
-			add(world, Entity(12, 12, 1, 1))
-		end)
+		-- Timer(4, function()
+		-- 	add(world, Entity(12, 12, 1, 1))
+		-- end)
+		add(visualSystems, createDrawShadowSystem());
+		add(visualSystems, createDrawRectSystem());
 
 		end,
 	update = function(self)
-		for _, system in pairs(updateSystems) do system(world) end
 		if (btn(5)) then transit(menuState) end
 	end,
 	draw = function(self)
 		print(count(world))
-		for _, system in pairs(drawSystems) do system(world) end
 	end
 }
